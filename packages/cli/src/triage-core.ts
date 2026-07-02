@@ -1,6 +1,7 @@
 import {
   DETECTORS,
   mintId,
+  validateItem,
   type Category,
   type DebtItem,
   type DetectedBy,
@@ -94,4 +95,38 @@ export function applyRevisit(
     lastSeen: today,
     status,
   };
+}
+
+// Parses the confirmed-items JSON the skill hands to `techdebt add`. The
+// human gate already happened in conversation; this is the machine check
+// that what was confirmed is schema-valid. Validation delegates to core
+// validateItem via a probe item so the rules live in exactly one place.
+export function parseConfirmedItems(json: string): TriageAnswers[] {
+  let data: unknown;
+  try {
+    data = JSON.parse(json);
+  } catch {
+    throw new Error('confirmed-items input is not valid JSON');
+  }
+  if (!Array.isArray(data)) {
+    throw new Error('confirmed-items input must be a JSON array');
+  }
+  return data.map((raw, i) => {
+    const v = (raw ?? {}) as Record<string, unknown>;
+    const answers: TriageAnswers = {
+      title: typeof v.title === 'string' ? v.title : '',
+      location: Array.isArray(v.location) ? v.location.map(String) : [],
+      detectedBy: v.detectedBy as DetectedBy,
+      category: v.category as Category,
+      effort: v.effort as Points,
+      impact: v.impact as Points,
+      interestRate: typeof v.interestRate === 'number' ? v.interestRate : NaN,
+      rationale: typeof v.rationale === 'string' ? v.rationale : '',
+      blocksWork: Array.isArray(v.blocksWork) ? v.blocksWork.map(String) : [],
+    };
+    const probe = buildItem(answers, new Set(), '2000-01-01');
+    const errors = validateItem(probe);
+    if (errors.length > 0) throw new Error(`item[${i}]: ${errors.join('; ')}`);
+    return answers;
+  });
 }

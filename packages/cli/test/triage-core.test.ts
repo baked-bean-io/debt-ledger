@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { validateItem } from '@techdebt/core';
-import { applyRevisit, buildItem, parseCandidates, type TriageAnswers } from '../src/triage-core.js';
+import { applyRevisit, buildItem, parseCandidates, parseConfirmedItems, type TriageAnswers } from '../src/triage-core.js';
 import { makeItem } from './helpers.js';
 
 const answers: TriageAnswers = {
@@ -77,5 +77,49 @@ describe('applyRevisit', () => {
     const original = makeItem({ blocksWork: ['STRAT-14'] });
     const updated = applyRevisit(original, answers, 'open', '2026-07-02');
     expect('blocksWork' in updated).toBe(false);
+  });
+});
+
+describe('parseConfirmedItems', () => {
+  const valid = {
+    title: 'untangle auth session handling',
+    location: ['src/auth/session.ts'],
+    detectedBy: 'llm',
+    category: 'design',
+    effort: 3,
+    impact: 5,
+    interestRate: 0.5,
+    rationale: 'every new endpoint copies the session hack',
+  };
+
+  test('parses a valid confirmed item (blocksWork optional)', () => {
+    const [parsed] = parseConfirmedItems(JSON.stringify([valid]));
+    expect(parsed!.title).toBe(valid.title);
+    expect(parsed!.blocksWork).toEqual([]);
+  });
+
+  test('carries blocksWork through when present', () => {
+    const [parsed] = parseConfirmedItems(
+      JSON.stringify([{ ...valid, blocksWork: ['STRAT-14'] }]),
+    );
+    expect(parsed!.blocksWork).toEqual(['STRAT-14']);
+  });
+
+  test.each([
+    ['not an array', JSON.stringify(valid)],
+    ['invalid JSON', '{oops'],
+    ['missing rationale', JSON.stringify([{ ...valid, rationale: '' }])],
+    ['interestRate out of range', JSON.stringify([{ ...valid, interestRate: 1.5 }])],
+    ['missing interestRate', JSON.stringify([(({ interestRate, ...rest }) => rest)(valid)])],
+    ['non-fibonacci effort', JSON.stringify([{ ...valid, effort: 4 }])],
+    ['bad category', JSON.stringify([{ ...valid, category: 'vibes' }])],
+    ['empty location', JSON.stringify([{ ...valid, location: [] }])],
+  ])('rejects %s', (_name, json) => {
+    expect(() => parseConfirmedItems(json)).toThrow();
+  });
+
+  test('error names the offending index', () => {
+    const bad = [{ ...valid }, { ...valid, rationale: '' }];
+    expect(() => parseConfirmedItems(JSON.stringify(bad))).toThrow(/item\[1\]/);
   });
 });
