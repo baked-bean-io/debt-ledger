@@ -34,4 +34,7 @@ program
     await runTriage(process.cwd(), { candidatesFile: opts.candidates, revisitId: opts.revisit });
   });
 
-program.parseAsync(process.argv);
+program.parseAsync(process.argv).catch((error: unknown) => {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
+});

@@ -25,7 +25,7 @@ function today(): string {
 
 function checked<T>(value: T | symbol): T {
   if (p.isCancel(value)) {
-    p.cancel('Triage aborted. Items confirmed so far are already saved.');
+    p.cancel('Triage aborted; no further changes will be written.');
     process.exit(0);
   }
   return value as T;
