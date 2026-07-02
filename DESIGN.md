@@ -131,6 +131,18 @@ ledger locations. No LLM (v2 option only, after the ledger has earned trust).
 - Body shows the same fields as `report` (id, title, score, status, matched files)
   — recognizably a view over the ledger, not a second opinion.
 
+### Action decisions (2026-07-02)
+
+- Node20 JS action bundling core via esbuild into a committed `action/dist`
+  (no per-PR npm install, no registry dependency at run time).
+- Requires `actions/checkout` first (that checkout IS the PR head the ledger
+  is read from) and `pull-requests: write` permission; token defaults to
+  `github.token`.
+- Missing ledger file behaves as an empty ledger — the zero-match path, so
+  existing sticky comments still get corrected rather than orphaned.
+- Comment ordering delegates to core `rank` over the matched items — the
+  comment is a view over the ledger, never a second opinion.
+
 ## Claude Code skill
 
 Three narrowly-scoped, human-invoked jobs:

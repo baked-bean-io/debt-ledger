@@ -40,6 +40,15 @@ mkdir -p .claude/skills/techdebt && cp skill/SKILL.md .claude/skills/techdebt/
 Then ask Claude things like "scan src/auth for tech debt", "what debt should
 I fix while I'm in this file?", or "td-a4f2 is fixed".
 
+## GitHub Action
+
+`action/` comments on pull requests that touch files with open tracked debt —
+one sticky comment, rewritten on every push, silent when the PR is clean, and
+reading the ledger from the PR head (so a PR that fixes an item and flips it
+to `fixed` isn't nagged about it). No LLM, no network beyond the GitHub API.
+See `examples/techdebt-workflow.yml`; the workflow needs `pull-requests: write`
+permission and a checkout step before the action.
+
 ## Ranking
 
 `priority = (impact × (1 + interestRate) × blockMultiplier) / effort`,

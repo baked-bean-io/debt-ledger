@@ -1,0 +1,18 @@
+# Copy to .github/workflows/techdebt.yml in a repo that has a .techdebt/items.json
+name: techdebt
+on:
+  pull_request:
+    types: [opened, synchronize]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  techdebt:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout is required and checks out the PR head — the action reads
+      # the ledger from the working tree.
+      - uses: actions/checkout@v4
+      # Until this repo is published, reference the action by local path from
+      # a monorepo checkout or a fork: <owner>/<repo>/action@<ref>
+      - uses: ./action
