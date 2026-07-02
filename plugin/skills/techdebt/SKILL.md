@@ -1,6 +1,6 @@
 ---
 name: techdebt
-description: Track and rank tech debt in a versioned ledger (.techdebt/items.json). Use when the user wants to find/record tech debt ("scan for debt", "log this as tech debt"), asks what debt to fix now or has slack time, wants to re-estimate or prune items, or says an item is fixed. Requires the `techdebt` CLI.
+description: Track and rank tech debt in a versioned ledger (.techdebt/items.json). Use when the user wants to find/record tech debt ("scan for debt", "log this as tech debt"), asks what debt to fix now or has slack time, wants to re-estimate or prune items, or says an item is fixed. The techdebt CLI is bundled with this skill — nothing else to install.
 ---
 
 # Tech Debt Tracker
@@ -24,6 +24,17 @@ user confirms them. The ranking is never yours to decide.
    ready to record.
 5. `location` is concrete repo-relative file paths (no globs, no
    directories).
+
+## Running the CLI
+
+The `techdebt` command-line tool ships inside this skill — nothing needs to
+be installed. Wherever this document says `techdebt ...`, run:
+
+    node "${CLAUDE_SKILL_DIR}/bin/techdebt.cjs" ...
+
+`${CLAUDE_SKILL_DIR}` resolves to this skill's own directory. If the machine
+also has a global `techdebt` command on PATH, it is the same tool and may be
+used interchangeably.
 
 ## Job 1: Detect — "scan this module for debt" / "log this as tech debt"
 
