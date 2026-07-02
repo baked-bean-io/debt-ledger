@@ -770,7 +770,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@techdebt/cli@workspace:packages/cli":
+"@techdebt/cli@workspace:*, @techdebt/cli@workspace:packages/cli":
   version: 0.0.0-use.local
   resolution: "@techdebt/cli@workspace:packages/cli"
   dependencies:
@@ -785,6 +785,15 @@ __metadata:
 "@techdebt/core@workspace:*, @techdebt/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@techdebt/core@workspace:packages/core"
+  languageName: unknown
+  linkType: soft
+
+"@techdebt/plugin@workspace:plugin":
+  version: 0.0.0-use.local
+  resolution: "@techdebt/plugin@workspace:plugin"
+  dependencies:
+    "@techdebt/cli": "workspace:*"
+    esbuild: "npm:^0.25.0"
   languageName: unknown
   linkType: soft
 

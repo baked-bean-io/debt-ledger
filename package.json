@@ -4,7 +4,8 @@
   "type": "module",
   "workspaces": [
     "packages/*",
-    "action"
+    "action",
+    "plugin"
   ],
   "engines": {
     "node": ">=20"

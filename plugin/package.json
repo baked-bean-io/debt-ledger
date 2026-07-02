@@ -1,0 +1,15 @@
+{
+  "name": "@techdebt/plugin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild ../packages/cli/src/index.ts --bundle --platform=node --target=node20 --format=cjs --outfile=skills/techdebt/bin/techdebt.cjs"
+  },
+  "dependencies": {
+    "@techdebt/cli": "workspace:*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}
