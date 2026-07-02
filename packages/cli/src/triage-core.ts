@@ -115,7 +115,10 @@ export function parseConfirmedItems(json: string): TriageAnswers[] {
     const v = (raw ?? {}) as Record<string, unknown>;
     const answers: TriageAnswers = {
       title: typeof v.title === 'string' ? v.title : '',
-      location: Array.isArray(v.location) ? v.location.map(String) : [],
+      location:
+        Array.isArray(v.location) && v.location.every((l) => typeof l === 'string')
+          ? (v.location as string[])
+          : [],
       detectedBy: v.detectedBy as DetectedBy,
       category: v.category as Category,
       effort: v.effort as Points,

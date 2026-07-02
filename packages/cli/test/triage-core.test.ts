@@ -114,6 +114,7 @@ describe('parseConfirmedItems', () => {
     ['non-fibonacci effort', JSON.stringify([{ ...valid, effort: 4 }])],
     ['bad category', JSON.stringify([{ ...valid, category: 'vibes' }])],
     ['empty location', JSON.stringify([{ ...valid, location: [] }])],
+    ['non-string location entries', JSON.stringify([{ ...valid, location: [null] }])],
   ])('rejects %s', (_name, json) => {
     expect(() => parseConfirmedItems(json)).toThrow();
   });

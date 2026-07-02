@@ -7,6 +7,7 @@ import { runRubric } from './commands/rubric.js';
 import { runAdd } from './commands/add.js';
 import { runStatus } from './commands/status.js';
 import { runSuggest } from './commands/suggest.js';
+import { parseIntStrict } from './parse-int.js';
 
 export const program = new Command();
 
@@ -68,8 +69,8 @@ program
   .command('suggest')
   .description('Suggest debt worth fixing now — adjacent to --files first, else the global top')
   .option('--files <list>', 'comma-separated changed files (adjacent-first mode)')
-  .option('--max-effort <n>', 'only items with effort <= n', (v: string) => Number.parseInt(v, 10))
-  .option('--limit <n>', 'max suggestions (default 3)', (v: string) => Number.parseInt(v, 10))
+  .option('--max-effort <n>', 'only items with effort <= n', parseIntStrict)
+  .option('--limit <n>', 'max suggestions (default 3)', parseIntStrict)
   .option('--json', 'machine-readable output')
   .action((opts: { files?: string; maxEffort?: number; limit?: number; json?: boolean }) => {
     runSuggest(process.cwd(), {

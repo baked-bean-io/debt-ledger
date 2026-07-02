@@ -1,14 +1,11 @@
 import { readLedger, STATUSES, writeLedger, type Status } from '@techdebt/core';
+import { todayIso } from '../today.js';
 
 export interface StatusIo {
   out: (line: string) => void;
 }
 
 const consoleIo: StatusIo = { out: (line) => console.log(line) };
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 export function runStatus(
   root: string,

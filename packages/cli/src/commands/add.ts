@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { matchChangedFiles, readLedger, writeLedger } from '@techdebt/core';
 import { buildItem, parseConfirmedItems } from '../triage-core.js';
+import { todayIso } from '../today.js';
 
 export interface AddIo {
   out: (line: string) => void;
@@ -11,10 +12,6 @@ const consoleIo: AddIo = {
   out: (line) => console.log(line),
   err: (line) => console.error(line),
 };
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 // Non-interactive write path for the skill: the human confirmed these items
 // in conversation; this validates them, mints ids, and writes canonically.

@@ -18,10 +18,7 @@ import {
 } from '@techdebt/core';
 import type { Candidate } from '../todo-scan.js';
 import { applyRevisit, buildItem, parseCandidates, type TriageAnswers } from '../triage-core.js';
-
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
-}
+import { todayIso } from '../today.js';
 
 function checked<T>(value: T | symbol): T {
   if (p.isCancel(value)) {
@@ -136,7 +133,7 @@ export async function runTriage(
         initialValue: item.status,
       }),
     );
-    const updated = applyRevisit(item, answers, status, today());
+    const updated = applyRevisit(item, answers, status, todayIso());
     ledger.items = ledger.items.map((i) => (i.id === item.id ? updated : i));
     writeLedger(root, ledger);
     p.outro(`updated ${item.id}`);
@@ -164,7 +161,7 @@ export async function runTriage(
     if (!proceed) continue;
 
     const answers = await promptAnswers(candidate);
-    const item = buildItem(answers, existingIds, today());
+    const item = buildItem(answers, existingIds, todayIso());
     existingIds.add(item.id);
     ledger.items.push(item);
     writeLedger(root, ledger); // save incrementally: Ctrl-C never loses confirmed items
