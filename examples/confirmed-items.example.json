@@ -1,0 +1,13 @@
+[
+  {
+    "title": "retry logic duplicated in three call sites",
+    "location": ["src/retry.ts", "src/client.ts"],
+    "detectedBy": "llm",
+    "category": "design",
+    "effort": 3,
+    "impact": 5,
+    "interestRate": 0.5,
+    "rationale": "each new integration copies the same retry block; the copies have already diverged once",
+    "blocksWork": ["STRAT-14"]
+  }
+]
