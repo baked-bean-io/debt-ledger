@@ -67,7 +67,7 @@ export function validateItem(value: unknown): string[] {
   if (!POINTS.includes(v.impact as Points)) {
     errors.push(`impact: must be one of ${POINTS.join(', ')}`);
   }
-  if (typeof v.interestRate !== 'number' || v.interestRate < 0 || v.interestRate > 1) {
+  if (typeof v.interestRate !== 'number' || !(v.interestRate >= 0 && v.interestRate <= 1)) {
     errors.push('interestRate: number between 0 and 1 required');
   }
   if (typeof v.rationale !== 'string' || v.rationale.trim().length === 0) {

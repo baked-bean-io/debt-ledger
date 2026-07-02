@@ -28,6 +28,7 @@ describe('validateItem', () => {
     ['non-fibonacci impact', makeItem({ impact: 6 as never })],
     ['interestRate above 1', makeItem({ interestRate: 1.5 })],
     ['interestRate below 0', makeItem({ interestRate: -0.1 })],
+    ['NaN interestRate', makeItem({ interestRate: NaN })],
     ['blank rationale', makeItem({ rationale: '   ' })],
     ['non-array blocksWork', makeItem({ blocksWork: 'STRAT-14' as never })],
     ['bad firstSeen', makeItem({ firstSeen: 'July 1' })],
