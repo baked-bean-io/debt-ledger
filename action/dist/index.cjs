@@ -23878,8 +23878,6 @@ var require_github = __commonJS({
 });
 
 // src/main.ts
-var import_node_fs = require("node:fs");
-var import_node_path = require("node:path");
 var core = __toESM(require_core(), 1);
 var github = __toESM(require_github(), 1);
 
@@ -23978,7 +23976,15 @@ function parseLedger(json) {
 }
 
 // ../packages/core/dist/ledger.js
+var import_node_fs = require("node:fs");
+var import_node_path = require("node:path");
 var LEDGER_PATH = ".techdebt/items.json";
+function readLedger(root) {
+  const path = (0, import_node_path.join)(root, LEDGER_PATH);
+  if (!(0, import_node_fs.existsSync)(path))
+    return { version: SCHEMA_VERSION, items: [] };
+  return parseLedger((0, import_node_fs.readFileSync)(path, "utf8"));
+}
 
 // ../packages/core/dist/rank.js
 var BLOCK_WEIGHT = 0.5;
@@ -24023,7 +24029,7 @@ function scoreMatches(matches) {
   }));
 }
 function escapeCell(text) {
-  return text.replace(/\|/g, "\\|");
+  return text.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 }
 function buildCommentBody(matches) {
   if (matches.length === 0) {
@@ -24039,7 +24045,7 @@ This PR no longer touches any tracked tech debt.`;
   ];
   for (const m of matches) {
     lines.push(
-      `| ${m.item.id} | ${m.score.toFixed(2)} | ${m.item.status} | ${m.item.effort}/${m.item.impact} | ${escapeCell(m.item.title)} | ${m.files.map((f) => `\`${f}\``).join(", ")} |`
+      `| ${m.item.id} | ${m.score.toFixed(2)} | ${m.item.status} | ${m.item.effort}/${m.item.impact} | ${escapeCell(m.item.title)} | ${m.files.map((f) => `\`${escapeCell(f)}\``).join(", ")} |`
     );
   }
   lines.push("", "_Ordered by the ledger's deterministic score. Run `techdebt report` locally for the full list._");
@@ -24056,8 +24062,7 @@ async function run() {
   const token = core.getInput("github-token", { required: true });
   const octokit = github.getOctokit(token);
   const { owner, repo } = github.context.repo;
-  const ledgerPath = (0, import_node_path.join)(process.env.GITHUB_WORKSPACE ?? ".", LEDGER_PATH);
-  const ledger = (0, import_node_fs.existsSync)(ledgerPath) ? parseLedger((0, import_node_fs.readFileSync)(ledgerPath, "utf8")) : { version: SCHEMA_VERSION, items: [] };
+  const ledger = readLedger(process.env.GITHUB_WORKSPACE ?? ".");
   const files = await octokit.paginate(octokit.rest.pulls.listFiles, {
     owner,
     repo,
@@ -24072,7 +24077,7 @@ async function run() {
     issue_number: pr.number,
     per_page: 100
   });
-  const existing = comments.find((c) => c.body?.includes(MARKER));
+  const existing = comments.find((c) => c.body?.startsWith(MARKER));
   if (scored.length === 0 && !existing) {
     core.info("No tracked debt touched; staying silent.");
     return;

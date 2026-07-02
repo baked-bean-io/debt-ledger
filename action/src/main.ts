@@ -1,8 +1,6 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { LEDGER_PATH, matchChangedFiles, parseLedger, SCHEMA_VERSION, type Ledger } from '@techdebt/core';
+import { matchChangedFiles, readLedger } from '@techdebt/core';
 import { buildCommentBody, MARKER, scoreMatches } from './comment.js';
 
 async function run(): Promise<void> {
@@ -16,12 +14,11 @@ async function run(): Promise<void> {
   const octokit = github.getOctokit(token);
   const { owner, repo } = github.context.repo;
 
-  // The ledger is read from the checkout, i.e. the PR head — a PR that fixes
+  // The ledger is read from the checkout — on pull_request events that's the
+  // PR merge ref, which contains the PR's ledger changes, so a PR that fixes
   // an item and flips it to `fixed` isn't nagged about it (DESIGN.md Q8).
-  const ledgerPath = join(process.env.GITHUB_WORKSPACE ?? '.', LEDGER_PATH);
-  const ledger: Ledger = existsSync(ledgerPath)
-    ? parseLedger(readFileSync(ledgerPath, 'utf8'))
-    : { version: SCHEMA_VERSION, items: [] };
+  // Missing file = empty ledger (readLedger's contract).
+  const ledger = readLedger(process.env.GITHUB_WORKSPACE ?? '.');
 
   const files = await octokit.paginate(octokit.rest.pulls.listFiles, {
     owner,
@@ -38,7 +35,7 @@ async function run(): Promise<void> {
     issue_number: pr.number,
     per_page: 100,
   });
-  const existing = comments.find((c) => c.body?.includes(MARKER));
+  const existing = comments.find((c) => c.body?.startsWith(MARKER));
 
   if (scored.length === 0 && !existing) {
     core.info('No tracked debt touched; staying silent.');

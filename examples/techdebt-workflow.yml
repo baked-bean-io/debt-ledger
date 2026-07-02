@@ -10,8 +10,9 @@ jobs:
   techdebt:
     runs-on: ubuntu-latest
     steps:
-      # Checkout is required and checks out the PR head — the action reads
-      # the ledger from the working tree.
+      # Checkout is required — on pull_request it checks out the PR merge ref,
+      # which contains the PR's ledger changes; the action reads the ledger
+      # from the working tree.
       - uses: actions/checkout@v4
       # Until this repo is published, reference the action by local path from
       # a monorepo checkout or a fork: <owner>/<repo>/action@<ref>

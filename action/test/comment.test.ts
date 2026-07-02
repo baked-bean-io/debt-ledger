@@ -42,4 +42,18 @@ describe('buildCommentBody', () => {
     );
     expect(buildCommentBody(scored)).toContain('a \\| b');
   });
+
+  test('flattens newlines in titles so a row cannot break the table', () => {
+    const scored = scoreMatches(
+      matchChangedFiles(['src/a.ts'], [makeItem({ title: 'line one\nline two' })]),
+    );
+    expect(buildCommentBody(scored)).toContain('line one line two');
+  });
+
+  test('escapes pipes in file cells', () => {
+    const scored = scoreMatches(
+      matchChangedFiles(['weird|name.ts'], [makeItem({ location: ['weird|name.ts'] })]),
+    );
+    expect(buildCommentBody(scored)).toContain('weird\\|name.ts');
+  });
 });
