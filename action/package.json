@@ -1,0 +1,17 @@
+{
+  "name": "@techdebt/action",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit && esbuild src/main.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/index.js"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.0",
+    "@actions/github": "^6.0.0",
+    "@techdebt/core": "workspace:*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

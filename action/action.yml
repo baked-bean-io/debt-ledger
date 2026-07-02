@@ -1,0 +1,9 @@
+name: 'Tech Debt Tracker'
+description: 'Comment on pull requests that touch files with tracked tech debt (.techdebt/items.json)'
+inputs:
+  github-token:
+    description: 'Token used to read PR files and write the sticky comment'
+    default: ${{ github.token }}
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "action"
   ],
   "engines": {
     "node": ">=20"
