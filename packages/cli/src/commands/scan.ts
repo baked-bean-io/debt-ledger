@@ -14,7 +14,7 @@ const consoleIo: ScanIo = {
 };
 
 export function runScan(root: string, opts: { json: boolean }, io: ScanIo = consoleIo): void {
-  const candidates = todosToCandidates(harvestTodos(root));
+  const candidates = todosToCandidates(harvestTodos(root, (line) => io.err(line)));
 
   const ledger = readLedger(root);
   const stale = findStaleItems(ledger.items, (p) => existsSync(join(root, p)));

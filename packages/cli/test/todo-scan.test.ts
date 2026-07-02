@@ -1,8 +1,14 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
-import { harvestTodos, scanContentForTodos, todosToCandidates } from '../src/todo-scan.js';
+import {
+  harvestTodos,
+  MAX_FILE_BYTES,
+  scanContentForTodos,
+  todosToCandidates,
+} from '../src/todo-scan.js';
 
 describe('scanContentForTodos', () => {
   test('finds all four tags with and without colons', () => {
@@ -41,6 +47,48 @@ describe('harvestTodos', () => {
     expect(found).toHaveLength(1);
     expect(found[0]!.file).toBe('src/deep/a.ts');
     expect(found[0]!.text).toBe('found me');
+  });
+});
+
+describe('harvestTodos in a git repo', () => {
+  function gitFixture(): string {
+    const root = mkdtempSync(join(tmpdir(), 'techdebt-git-'));
+    execFileSync('git', ['-C', root, 'init', '-q']);
+    return root;
+  }
+
+  test('respects .gitignore instead of the hardcoded skip-dir list', () => {
+    // The first dogfood run OOM'd on 10 GB of gitignored cdk.out artifacts —
+    // git's view of the repo, not a directory walk, is the file list.
+    const root = gitFixture();
+    mkdirSync(join(root, 'cdk.out'));
+    writeFileSync(join(root, '.gitignore'), 'cdk.out/\n');
+    writeFileSync(join(root, 'app.ts'), '// TODO: tracked\n');
+    writeFileSync(join(root, 'cdk.out', 'bundle.js'), '// TODO: ignored artifact\n');
+
+    const files = harvestTodos(root).map((t) => t.file);
+    expect(files).toContain('app.ts');
+    expect(files.some((f) => f.startsWith('cdk.out/'))).toBe(false);
+  });
+
+  test('skips files over MAX_FILE_BYTES and warns once', () => {
+    const root = gitFixture();
+    writeFileSync(join(root, 'big.txt'), `// TODO: needle\n${'x'.repeat(MAX_FILE_BYTES)}`);
+    writeFileSync(join(root, 'small.ts'), '// TODO: found\n');
+
+    const warnings: string[] = [];
+    const found = harvestTodos(root, (line) => warnings.push(line));
+    expect(found.map((t) => t.file)).toEqual(['small.ts']);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('skipped 1 file');
+  });
+
+  test('tolerates files git lists but the worktree no longer has', () => {
+    const root = gitFixture();
+    writeFileSync(join(root, 'gone.ts'), '// TODO: soon deleted\n');
+    execFileSync('git', ['-C', root, 'add', 'gone.ts']);
+    rmSync(join(root, 'gone.ts'));
+    expect(harvestTodos(root)).toEqual([]);
   });
 });
 
