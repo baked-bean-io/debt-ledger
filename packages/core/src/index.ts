@@ -5,4 +5,5 @@ export * from './ledger.js';
 export * from './rank.js';
 export * from './adjacency.js';
 export * from './staleness.js';
+export * from './suggest.js';
 export * from './rubric.js';
