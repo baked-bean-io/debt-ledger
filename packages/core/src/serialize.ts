@@ -15,7 +15,13 @@ const KEY_ORDER = [
   'firstSeen',
   'lastSeen',
   'status',
-] as const;
+] as const satisfies readonly (keyof DebtItem)[];
+
+type AssertNever<T extends never> = T;
+// Compile-time proof that KEY_ORDER covers every DebtItem field — adding a
+// schema field without extending KEY_ORDER fails the build instead of
+// silently dropping the field from serialization.
+type _KeyOrderIsExhaustive = AssertNever<Exclude<keyof DebtItem, (typeof KEY_ORDER)[number]>>;
 
 function canonicalItem(item: DebtItem): Record<string, unknown> {
   const source = item as unknown as Record<string, unknown>;

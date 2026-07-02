@@ -39,7 +39,7 @@ describe('harvestTodos', () => {
 
     const found = harvestTodos(root);
     expect(found).toHaveLength(1);
-    expect(found[0]!.file).toBe(join('src', 'deep', 'a.ts'));
+    expect(found[0]!.file).toBe('src/deep/a.ts');
     expect(found[0]!.text).toBe('found me');
   });
 });

@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import type { DetectedBy } from '@techdebt/core';
 
 export interface TodoCandidate {
@@ -34,6 +34,10 @@ export function harvestTodos(root: string): TodoCandidate[] {
   walk(root);
   return out;
 
+  function repoRelative(rootDir: string, filePath: string): string {
+    return relative(rootDir, filePath).split(sep).join('/');
+  }
+
   function walk(dir: string): void {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const path = join(dir, entry.name);
@@ -44,7 +48,7 @@ export function harvestTodos(root: string): TodoCandidate[] {
       if (!entry.isFile()) continue;
       const bytes = readFileSync(path);
       if (bytes.includes(0)) continue; // NUL byte: treat as binary, skip
-      out.push(...scanContentForTodos(bytes.toString('utf8'), relative(root, path)));
+      out.push(...scanContentForTodos(bytes.toString('utf8'), repoRelative(root, path)));
     }
   }
 }

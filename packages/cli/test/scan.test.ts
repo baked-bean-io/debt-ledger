@@ -27,8 +27,8 @@ describe('runScan', () => {
     const candidates = JSON.parse(out.join('\n'));
     expect(candidates).toEqual([
       {
-        title: `TODO: tighten types (${join('src', 'a.ts')}:1)`,
-        location: [join('src', 'a.ts')],
+        title: 'TODO: tighten types (src/a.ts:1)',
+        location: ['src/a.ts'],
         detectedBy: 'static-analysis',
       },
     ]);
