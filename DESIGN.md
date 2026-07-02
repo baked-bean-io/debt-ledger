@@ -146,6 +146,23 @@ Three narrowly-scoped, human-invoked jobs:
    falls through to the global ranking, optionally effort-capped ("things I can
    finish today"). Output: top N (~3) with score, rationale, and why-it-surfaced.
 
+### Skill decisions (2026-07-02)
+
+- **CLI-mediated writes.** The skill never edits `items.json`; Claude cannot
+  drive the interactive triage TUI, so the CLI grew a non-interactive
+  surface: `add` (validated confirmed-items JSON in, canonical write + minted
+  ids out), `status <id> <status>`, `suggest`, `rubric`, `report --json`.
+  The human gate moves into the conversation: propose → confirm → `add`.
+- **interestRate is anchor-quantized by convention.** The schema accepts any
+  value in [0,1]; every writer emits only 0 / 0.2 / 0.5 / 0.8. Consistency
+  is the rubric's job; continuous precision would be false precision.
+- **Suggest stays deterministic.** `suggest()` lives in core (adjacent-only
+  when adjacency hits, else global top-N, effort-cappable, every result
+  carries a `reason`). The skill computes the changed-file list from git and
+  narrates; it never reorders.
+- **`add` warns, never blocks, on location overlap** — the duplicate check
+  is advisory because the human gate already passed in conversation.
+
 ## Calibration rubric (Q11)
 
 One screen, single source in `packages/core` docs; embedded in the skill's triage

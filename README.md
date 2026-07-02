@@ -26,6 +26,20 @@ techdebt report                     # deterministic ranked ledger
 techdebt triage --revisit td-a4f2   # re-estimate, prune blockers, change status
 ```
 
+## Claude Code skill
+
+`skill/SKILL.md` teaches Claude Code the detect → confirm → record loop:
+propose candidates with rubric-anchored estimates, get your confirmation in
+chat, then write through `techdebt add` (never by editing the ledger
+directly). Install by copying into your project:
+
+```sh
+mkdir -p .claude/skills/techdebt && cp skill/SKILL.md .claude/skills/techdebt/
+```
+
+Then ask Claude things like "scan src/auth for tech debt", "what debt should
+I fix while I'm in this file?", or "td-a4f2 is fixed".
+
 ## Ranking
 
 `priority = (impact × (1 + interestRate) × blockMultiplier) / effort`,
