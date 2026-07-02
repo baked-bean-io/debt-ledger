@@ -1,7 +1,6 @@
 {
   "name": "techdebt",
   "description": "Tech-debt ledger for your repo: Claude finds debt and proposes estimates, you confirm in chat, simple arithmetic ranks it. The techdebt CLI is bundled — nothing else to install.",
-  "version": "1.0.0",
   "author": {
     "name": "Mike McEwen"
   }
