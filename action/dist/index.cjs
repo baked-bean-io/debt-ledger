@@ -23880,8 +23880,8 @@ var require_github = __commonJS({
 // src/main.ts
 var import_node_fs = require("node:fs");
 var import_node_path = require("node:path");
-var core = __toESM(require_core());
-var github = __toESM(require_github());
+var core = __toESM(require_core(), 1);
+var github = __toESM(require_github(), 1);
 
 // ../packages/core/dist/schema.js
 var SCHEMA_VERSION = 1;

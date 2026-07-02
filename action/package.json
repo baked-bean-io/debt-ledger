@@ -2,8 +2,9 @@
   "name": "@techdebt/action",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.json --noEmit && esbuild src/main.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/index.js"
+    "build": "tsc -p tsconfig.json --noEmit && esbuild src/main.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/index.cjs"
   },
   "dependencies": {
     "@actions/core": "^1.11.0",
