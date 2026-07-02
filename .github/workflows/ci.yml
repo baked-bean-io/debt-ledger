@@ -1,0 +1,29 @@
+# Two jobs in one matrix: prove the suite on Linux AND Windows, and fail if
+# anyone commits source changes without rebuilding the action bundle
+# (action/dist is a committed build artifact — `git diff --exit-code` is the
+# drift guard the final review asked for).
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # The repo pins Yarn 4 via yarnPath in .yarnrc.yml; the runners'
+      # preinstalled yarn 1.22 reads that and delegates to the pinned release.
+      - run: yarn install --immutable
+      - run: yarn vitest run
+      - run: yarn build
+      - name: committed action bundle must match the source
+        run: git diff --exit-code

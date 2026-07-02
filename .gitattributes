@@ -1,0 +1,11 @@
+# Force LF line endings on checkout everywhere, including Windows.
+# Two things depend on this: the canonical ledger serializer's exact-byte
+# tests (template literals in test files must contain \n, not \r\n) and the
+# CI bundle-drift guard (git diff --exit-code must not see line-ending churn).
+* text=auto eol=lf
+
+# Binary-ish artifacts git should never rewrite.
+*.png binary
+*.jpg binary
+*.gz binary
+.yarn/releases/** binary

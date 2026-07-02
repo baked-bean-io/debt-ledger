@@ -18,10 +18,14 @@ Full design decisions live in [DESIGN.md](DESIGN.md).
 
 ## What you need
 
-- A Mac or Linux machine
+- A Mac, Linux, or Windows machine
 - Node.js version 20 or newer — check with `node --version`
 - git
 - Optional: [Claude Code](https://claude.com/claude-code), if you want AI help *finding* debt
+
+On Windows, everything below works from PowerShell except where a Windows
+note says otherwise. (Continuous tests run on both Linux and Windows, so
+both are first-class.)
 
 ## Install (about two minutes)
 
@@ -48,6 +52,14 @@ Code to be able to run it too), link it onto your PATH instead:
 
 ```sh
 ln -s ~/tech-debt-tracker/packages/cli/dist/index.js /usr/local/bin/techdebt
+```
+
+**Windows note:** instead of the alias above, add this function to your
+PowerShell profile (run `notepad $PROFILE` to open it), then start a new
+terminal:
+
+```powershell
+function techdebt { node "$HOME\tech-debt-tracker\packages\cli\dist\index.js" @args }
 ```
 
 **Step 3 — check it works.** `techdebt --help` should print the list of
@@ -162,6 +174,9 @@ chmod +x .git/hooks/pre-push
 ```
 
 To remove it later: `rm .git/hooks/pre-push`.
+
+**Windows note:** this works as-is if you installed Git for Windows (git runs
+hooks through its own bundled shell, even when you push from PowerShell).
 
 ## How the ranking works, in plain words
 
