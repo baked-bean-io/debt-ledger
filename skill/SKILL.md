@@ -27,7 +27,7 @@ user confirms them. The ranking is never yours to decide.
 
 ## Job 1: Detect — "scan this module for debt" / "log this as tech debt"
 
-1. Establish scope: the diff (`git diff --name-only $(git merge-base HEAD origin/main)`
+1. Establish scope: the diff (`git diff --name-only $(git merge-base HEAD origin/main 2>/dev/null || git merge-base HEAD main)`
    plus uncommitted changes) or the files/module the user names.
 2. Read the code. Look for: design flaws that force workarounds, missing
    tests on risky paths, outdated dependencies, doc rot, perf cliffs,
@@ -40,16 +40,34 @@ user confirms them. The ranking is never yours to decide.
    rationale. Quote the anchor text that justifies each estimate.
 5. Iterate until the user confirms a final set (they may edit estimates —
    theirs win). On confirmation, write the confirmed array to a temp file
-   (in your scratchpad, never in the repo) shaped like
-   `examples/confirmed-items.example.json`, with `detectedBy: "llm"`
-   (or `"human"` if the user described the debt and you just transcribed).
+   (in your scratchpad, never in the repo). Shape — a JSON array of objects
+   with exactly these fields (`blocksWork` optional):
+
+   ```json
+   [
+     {
+       "title": "retry logic duplicated in three call sites",
+       "location": ["src/retry.ts", "src/client.ts"],
+       "detectedBy": "llm",
+       "category": "design",
+       "effort": 3,
+       "impact": 5,
+       "interestRate": 0.5,
+       "rationale": "each new integration copies the same retry block",
+       "blocksWork": ["STRAT-14"]
+     }
+   ]
+   ```
+
+   Use `detectedBy: "llm"` (or `"human"` if the user described the debt and
+   you just transcribed).
 6. Run `techdebt add --file <tmpfile>`. Report the minted ids. Remind the
    user the ledger change is uncommitted; suggest committing it with the
    related work.
 
 ## Job 2: Triage — "triage the scan results" / re-estimating existing items
 
-- For scan candidates: `techdebt scan --json > /tmp-scratch/candidates.json`,
+- For scan candidates: `techdebt scan --json > <your-scratchpad>/candidates.json` (a temp file in your scratchpad, never in the repo),
   then walk the user through them in conversation (batch by file; propose
   skip/keep with reasons). Confirmed ones go through the same
   confirmed-items flow as Job 1 — carry `detectedBy: "static-analysis"`.
