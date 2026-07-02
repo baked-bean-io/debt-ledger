@@ -1,0 +1,41 @@
+# techdebt-tracker
+
+Track tech debt per-project in a versioned ledger (`.techdebt/items.json`), rank it
+deterministically, and surface items when your current work is adjacent to them.
+Detection proposes; a human confirms and freezes the numbers; ranking is pure
+arithmetic over the frozen fields. See [DESIGN.md](DESIGN.md) for the full design.
+
+## Packages
+
+- `packages/core` — schema, ranking, canonical ledger I/O, adjacency, staleness.
+  Pure TypeScript, zero runtime dependencies.
+- `packages/cli` — the `techdebt` command (`scan`, `triage`, `report`). No LLM,
+  no network, no API key.
+
+## Quick start
+
+```sh
+yarn install && yarn build
+
+# in the repo you want to track:
+techdebt scan                       # find TODO/FIXME/HACK/XXX candidates
+techdebt scan --json > c.json
+techdebt triage --candidates c.json # human gate: confirm + freeze estimates
+techdebt triage                     # or add an item manually
+techdebt report                     # deterministic ranked ledger
+techdebt triage --revisit td-a4f2   # re-estimate, prune blockers, change status
+```
+
+## Ranking
+
+`priority = (impact × (1 + interestRate) × blockMultiplier) / effort`,
+`blockMultiplier = 1 + 0.5 × min(blockers, 4)`. Ties: impact desc, then id.
+Scores round to 2 decimals before comparison. Fixed/wontfix items never rank
+but stay in the ledger as the historical record.
+
+## Development
+
+```sh
+yarn test    # vitest across all packages
+yarn build   # tsc, topological
+```
