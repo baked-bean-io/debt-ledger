@@ -57,10 +57,13 @@ describe('rank', () => {
     expect(rank(items).map((r) => r.item.id)).toEqual(['td-aaaa', 'td-bbbb']);
   });
 
-  test('compares on the rounded score', () => {
-    // raw scores differ in the 15th decimal place; rounded they tie, id decides
-    const a = makeItem({ id: 'td-aaaa', impact: 3, effort: 3, interestRate: 0.1 });
-    const b = makeItem({ id: 'td-bbbb', impact: 1, effort: 1, interestRate: 0.1 });
+  test('compares on the rounded score, not the raw value', () => {
+    // raw scores differ (0.375 vs 0.37875) but both round to 0.38; impacts are
+    // equal, so the id tie-break must decide. A raw-score comparison would put
+    // td-bbbb first instead.
+    const a = makeItem({ id: 'td-aaaa', impact: 3, effort: 8, interestRate: 0 });
+    const b = makeItem({ id: 'td-bbbb', impact: 3, effort: 8, interestRate: 0.01 });
     expect(rank([b, a]).map((r) => r.item.id)).toEqual(['td-aaaa', 'td-bbbb']);
+    expect(rank([b, a]).map((r) => r.score)).toEqual([0.38, 0.38]);
   });
 });
