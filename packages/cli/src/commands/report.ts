@@ -7,7 +7,15 @@ export interface ReportIo {
 
 const consoleIo: ReportIo = { out: (text) => process.stdout.write(text) };
 
-export function runReport(root: string, io: ReportIo = consoleIo): void {
-  const ledger = readLedger(root);
-  io.out(formatReport(rank(ledger.items)));
+export function runReport(
+  root: string,
+  opts: { json?: boolean } = {},
+  io: ReportIo = consoleIo,
+): void {
+  const ranked = rank(readLedger(root).items);
+  if (opts.json) {
+    io.out(`${JSON.stringify(ranked, null, 2)}\n`);
+    return;
+  }
+  io.out(formatReport(ranked));
 }

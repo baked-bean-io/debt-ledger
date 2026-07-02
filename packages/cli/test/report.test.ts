@@ -18,7 +18,7 @@ describe('runReport', () => {
       ],
     });
     const out: string[] = [];
-    runReport(root, { out: (s) => out.push(s) });
+    runReport(root, {}, { out: (s) => out.push(s) });
     const text = out.join('\n');
     expect(text.indexOf('td-high')).toBeLessThan(text.indexOf('td-low'));
     expect(text).not.toContain('td-done');
@@ -27,7 +27,18 @@ describe('runReport', () => {
   test('handles a repo with no ledger', () => {
     const root = mkdtempSync(join(tmpdir(), 'techdebt-noledger-'));
     const out: string[] = [];
-    runReport(root, { out: (s) => out.push(s) });
+    runReport(root, {}, { out: (s) => out.push(s) });
     expect(out.join('\n')).toContain('No open debt items');
+  });
+
+  test('--json emits the ranked items as parseable JSON', () => {
+    const root = mkdtempSync(join(tmpdir(), 'techdebt-reportjson-'));
+    writeLedger(root, { version: 1, items: [makeItem({ id: 'td-abcd' })] });
+    const out: string[] = [];
+    runReport(root, { json: true }, { out: (s) => out.push(s) });
+    const ranked = JSON.parse(out.join(''));
+    expect(ranked).toHaveLength(1);
+    expect(ranked[0].item.id).toBe('td-abcd');
+    expect(ranked[0].score).toBe(1.2);
   });
 });

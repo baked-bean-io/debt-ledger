@@ -22,8 +22,9 @@ program
 program
   .command('report')
   .description('Print the debt ledger ranked by priority (score desc, impact desc, id asc)')
-  .action(() => {
-    runReport(process.cwd());
+  .option('--json', 'emit the ranked items as JSON')
+  .action((opts: { json?: boolean }) => {
+    runReport(process.cwd(), { json: Boolean(opts.json) });
   });
 
 program
