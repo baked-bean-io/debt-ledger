@@ -5,6 +5,7 @@ import { runReport } from './commands/report.js';
 import { runTriage } from './commands/triage.js';
 import { runRubric } from './commands/rubric.js';
 import { runAdd } from './commands/add.js';
+import { runStatus } from './commands/status.js';
 
 export const program = new Command();
 
@@ -51,6 +52,15 @@ program
   .option('--file <file>', 'confirmed-items JSON array (defaults to stdin)')
   .action((opts: { file?: string }) => {
     runAdd(process.cwd(), { file: opts.file });
+  });
+
+program
+  .command('status')
+  .description('Set an item status (open|planned|fixed|wontfix) and stamp lastSeen')
+  .argument('<id>', 'item id, e.g. td-a4f2')
+  .argument('<status>', 'new status')
+  .action((id: string, status: string) => {
+    runStatus(process.cwd(), id, status);
   });
 
 program.parseAsync(process.argv).catch((error: unknown) => {
