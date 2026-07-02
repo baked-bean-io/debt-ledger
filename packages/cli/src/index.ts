@@ -4,6 +4,7 @@ import { runScan } from './commands/scan.js';
 import { runReport } from './commands/report.js';
 import { runTriage } from './commands/triage.js';
 import { runRubric } from './commands/rubric.js';
+import { runAdd } from './commands/add.js';
 
 export const program = new Command();
 
@@ -42,6 +43,14 @@ program
   .option('--json', 'machine-readable anchors')
   .action((opts: { json?: boolean }) => {
     runRubric({ json: Boolean(opts.json) });
+  });
+
+program
+  .command('add')
+  .description('Add confirmed items non-interactively (JSON from --file or stdin); prints minted ids')
+  .option('--file <file>', 'confirmed-items JSON array (defaults to stdin)')
+  .action((opts: { file?: string }) => {
+    runAdd(process.cwd(), { file: opts.file });
   });
 
 program.parseAsync(process.argv).catch((error: unknown) => {
