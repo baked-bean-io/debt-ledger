@@ -47,8 +47,8 @@ Linux setups), then open a new terminal window:
 alias techdebt="node $HOME/tech-debt-tracker/packages/cli/dist/index.js"
 ```
 
-If you'd rather have a real command than an alias (needed if you want Claude
-Code to be able to run it too), link it onto your PATH instead:
+If you'd rather have a real command than an alias (handy if you skip the
+plugin install described below), link it onto your PATH instead:
 
 ```sh
 ln -s ~/tech-debt-tracker/packages/cli/dist/index.js /usr/local/bin/techdebt
@@ -209,4 +209,5 @@ yarn build   # type-check and build all packages
 
 The monorepo has four parts: `packages/core` (the data model and ranking —
 plain TypeScript, no dependencies), `packages/cli` (the `techdebt` command),
-`skill/` (the Claude Code skill), and `action/` (the GitHub Action).
+`plugin/` (the Claude Code plugin: the skill plus a bundled copy of the CLI),
+and `action/` (the GitHub Action).
