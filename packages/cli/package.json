@@ -1,0 +1,17 @@
+{
+  "name": "@techdebt/cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "techdebt": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.10.0",
+    "@techdebt/core": "workspace:*",
+    "commander": "^13.0.0"
+  }
+}
