@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import { runScan } from './commands/scan.js';
+import { runReport } from './commands/report.js';
 
 export const program = new Command();
 
@@ -14,6 +15,13 @@ program
   .option('--json', 'print candidates as JSON on stdout (warnings go to stderr)')
   .action((opts: { json?: boolean }) => {
     runScan(process.cwd(), { json: Boolean(opts.json) });
+  });
+
+program
+  .command('report')
+  .description('Print the debt ledger ranked by priority (score desc, impact desc, id asc)')
+  .action(() => {
+    runReport(process.cwd());
   });
 
 program.parseAsync(process.argv);
