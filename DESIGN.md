@@ -12,7 +12,7 @@ a human decides.
 ```
 packages/core/        ← rank.ts, schema, ledger read/write, adjacency (pure TS, zero runtime deps)
 packages/cli/         ← npx entrypoint (`techdebt scan|report|triage`) — the OSS front door
-skill/                ← Claude Code skill: interactive detect/triage/suggest (LLM in loop)
+plugin/               ← Claude Code plugin: the skill + a bundled CLI (installable via /plugin)
 action/               ← GitHub Action: adjacency comment on PRs (no LLM per-PR)
 examples/
 ```
@@ -174,6 +174,14 @@ Three narrowly-scoped, human-invoked jobs:
   narrates; it never reorders.
 - **`add` warns, never blocks, on location overlap** — the duplicate check
   is advisory because the human gate already passed in conversation.
+- **Distributed as a Claude Code plugin (2026-07-02).** `plugin/` wraps the
+  skill plus an esbuild-bundled CLI (`skills/techdebt/bin/techdebt.cjs`,
+  committed; the CI drift guard covers it). The repo doubles as the
+  marketplace via `.claude-plugin/marketplace.json`. The skill invokes the
+  bundled CLI through `${CLAUDE_SKILL_DIR}`, so installing the plugin is the
+  entire setup. `plugin.json` omits `version` deliberately: git-SHA
+  versioning means every commit is an update while the tool is young. The
+  standalone CLI (npx) remains the front door for non-Claude users.
 
 ## Calibration rubric (Q11)
 

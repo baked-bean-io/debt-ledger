@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "techdebt": {
+      "source": {
+        "source": "github",
+        "repo": "OWNER/tech-debt-tracker"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "techdebt@techdebt": true
+  }
+}

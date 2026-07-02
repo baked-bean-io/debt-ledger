@@ -125,15 +125,25 @@ the un-flagged debt — design problems, missing tests, copy-pasted logic —
 with suggested numbers and a written reason for each. You approve or edit
 everything in the chat before anything is saved.
 
-Install it into the repo you're tracking:
+The easiest way to get it is the plugin. Inside Claude Code, run these two
+commands once (they work in any project):
 
-```sh
-mkdir -p .claude/skills/techdebt
-cp ~/tech-debt-tracker/skill/SKILL.md .claude/skills/techdebt/
+```
+/plugin marketplace add <this-repo-on-github>     # e.g. your-name/tech-debt-tracker
+/plugin install techdebt
 ```
 
-(For this to work, Claude needs the real `techdebt` command from Step 2's
-`ln -s` option — an alias only exists in your own terminal.)
+That's the whole install. The plugin carries its own copy of the `techdebt`
+command, so there is nothing to add to your PATH — the Step 2 alias above is
+only needed if you want to run `techdebt` yourself in a terminal.
+
+Until this repo is on GitHub, point the marketplace at your local copy
+instead: `/plugin marketplace add ~/tech-debt-tracker`.
+
+**For a whole team:** commit the file `examples/claude-settings-plugin.json`
+into the repo you're tracking as `.claude/settings.json` (fill in the real
+GitHub name). Anyone who opens that repo in Claude Code gets asked once
+whether to install the plugin — one click and they have it.
 
 Then just talk to Claude Code inside that repo:
 
