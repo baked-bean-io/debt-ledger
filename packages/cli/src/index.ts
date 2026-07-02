@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import { runScan } from './commands/scan.js';
 import { runReport } from './commands/report.js';
 import { runTriage } from './commands/triage.js';
+import { runRubric } from './commands/rubric.js';
 
 export const program = new Command();
 
@@ -32,6 +33,14 @@ program
   .option('--revisit <id>', 're-triage an existing item: adjust estimates, prune blockers, change status')
   .action(async (opts: { candidates?: string; revisit?: string }) => {
     await runTriage(process.cwd(), { candidatesFile: opts.candidates, revisitId: opts.revisit });
+  });
+
+program
+  .command('rubric')
+  .description('Print the calibration rubric (effort/impact/interestRate anchors)')
+  .option('--json', 'machine-readable anchors')
+  .action((opts: { json?: boolean }) => {
+    runRubric({ json: Boolean(opts.json) });
   });
 
 program.parseAsync(process.argv).catch((error: unknown) => {
