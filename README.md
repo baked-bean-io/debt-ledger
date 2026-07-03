@@ -5,33 +5,121 @@ technical debt. This tool keeps an honest list of yours, saved as a small file
 inside your own repo, and ranks the list so you always know what's worth
 fixing next.
 
-The idea in one paragraph: when you find a piece of debt, you answer a few
+The idea in one paragraph: when a piece of debt turns up, you answer a few
 quick questions about it — how big is the fix, how much pain does it cause,
 is it getting worse over time. Your answers are saved to `.techdebt/items.json`
 in your repo, committed to git like any other file. From then on a simple
-formula ranks everything, one command shows you the ranked list, and (if you
-want) GitHub comments on pull requests that touch files with known debt.
-Nothing decides for you and no AI is involved in the ranking — the same list
-comes out in the same order every time, and you can always see why.
+formula ranks everything, and (if you want) GitHub comments on pull requests
+that touch files with known debt. Nothing decides for you and no AI is
+involved in the ranking — the same list comes out in the same order every
+time, and you can always see why.
+
+**The main way to use it is by talking to [Claude Code](https://claude.com/claude-code).**
+You install one plugin, then just ask — "scan this module for tech debt,"
+"what should I fix while I'm here?" — and Claude does the reading, proposes
+the entries, and keeps the books, with you approving every number. There's
+also a plain terminal command for people and scripts that don't use Claude;
+that's further down.
 
 Full design decisions live in [DESIGN.md](DESIGN.md).
 
-## What you need
+## Get started (two commands)
 
-- A Mac, Linux, or Windows machine
-- Node.js version 20 or newer — check with `node --version`
-- git
-- Optional: [Claude Code](https://claude.com/claude-code), if you want AI help *finding* debt
+You need [Claude Code](https://claude.com/claude-code) and git — that's it.
+Inside Claude Code, run these two commands once; they work in every project
+from then on:
 
-On Windows, everything below works from PowerShell except where a Windows
-note says otherwise. (Continuous tests run on both Linux and Windows, so
-both are first-class.)
+```
+/plugin marketplace add baked-bean-io/debt-ledger
+/plugin install debt-ledger@baked-bean-io
+```
 
-## Install (about two minutes)
+That's the whole install. The plugin carries its own copy of the `debt`
+command inside it, so there is nothing to download, build, or add to your
+PATH. (Works on Mac, Linux, and Windows — tests run on all of them.)
 
-The tool isn't on npm yet, so you run it straight from a copy of this repo.
+Then open the repo you want to track and start with:
 
-**Step 1 — get the code and build it.** In your terminal:
+> *"Scan this repo for tech debt and triage the results with me."*
+
+Claude will look for existing `TODO`-style comments, read the code for the
+deeper problems nobody flagged, and walk you through recording the real ones
+— you approve or adjust every estimate in the chat. The result is a new
+`.techdebt/items.json` file: **commit it.** That file is the debt list, and
+it lives in your repo like any other code.
+
+## What you can ask Claude to do
+
+The plugin gives Claude four jobs. In all of them Claude works through the
+same `debt` commands listed later in this file — it never edits the list
+file directly, and it never records anything without your yes in the chat.
+
+**1. Find debt.** Say things like *"scan src/auth for tech debt"* or *"look
+at the diff on this branch — any debt worth recording?"* Claude reads the
+code, proposes candidates in a table (with suggested numbers and a written
+reason for each, scored against the shared rubric), and iterates with you.
+Only when you confirm does it record them — and it checks the existing list
+first so it won't re-propose something already tracked.
+
+**2. Triage.** Say *"run a scan and triage the results with me"* or *"log
+this as tech debt: the retry logic in client.ts is copy-pasted from
+retry.ts."* Same confirmation gate: you set or approve every number before
+anything is saved. For re-estimating an existing item, Claude will point
+you at `debt triage --revisit <id>` (that one's interactive on purpose —
+the numbers are yours to change, not Claude's).
+
+**3. Suggest.** Say *"what debt should I fix while I'm in this file?"* or
+*"I've got a slack afternoon — what's worth fixing?"* Claude works out
+which files you're touching from git, asks the ranking for the answer, and
+presents it with each item's why-it-surfaced reason. It's not allowed to
+reorder the list or add its own picks — the ranking is arithmetic, and what
+you see is what the math said.
+
+**4. Bookkeeping.** Say *"td-a4f2 is fixed"* or *"we're never fixing that
+one."* Claude flips the status (confirming the id with you first if it's
+ambiguous) and reminds you to commit the change alongside the fix. If a
+command ever reports the list file is unhealthy — usually right after a
+merge — Claude will suggest `debt doctor`.
+
+## Rolling it out to a team
+
+Two files, both already in this repo's `examples/` folder:
+
+- **One-click plugin install for everyone:** commit
+  `examples/claude-settings-plugin.json` into the repo you're tracking as
+  `.claude/settings.json`. Anyone who opens that repo in Claude Code gets
+  asked once whether to install the plugin — one click and they have it.
+- **Debt comments on pull requests:** copy `examples/debt-workflow.yml` into
+  the repo as `.github/workflows/debt-ledger.yml` and push. From then on,
+  any pull request that touches files with known debt gets **one** comment
+  showing which items live in the files being changed and how they rank. It
+  updates that same comment on every push, stays completely silent on PRs
+  that don't touch tracked debt, and won't nag a PR about the very item it
+  fixes. Teammates who never installed anything still see these.
+
+Updates ship automatically: when this repo improves, `/plugin update
+debt-ledger@baked-bean-io` (or auto-update, if you enable it in the settings
+file) picks up the latest.
+
+## How the ranking works, in plain words
+
+Each item's score is: **how much it hurts × how fast it's getting worse ×
+whether it's blocking other work, divided by how big the fix is.** Big pain,
+spreading fast, blocking a feature, cheap to fix → top of the list. Ugly but
+harmless and expensive to fix → bottom. The numbers come from you at triage
+time and never change on their own, so the order is stable, and two people
+looking at the same list see the same thing.
+
+For the formula itself and the reasoning behind it, see
+[DESIGN.md](DESIGN.md).
+
+## Using the terminal instead (no Claude required)
+
+Everything also works as a plain command-line tool — for teammates who don't
+use Claude Code, for scripts, or for quick checks. The tool isn't on npm
+yet, so you run it straight from a copy of this repo:
+
+**Step 1 — get the code and build it** (needs Node.js 20 or newer and yarn):
 
 ```sh
 git clone https://github.com/baked-bean-io/debt-ledger ~/debt-ledger
@@ -47,79 +135,30 @@ Linux setups), then open a new terminal window:
 alias debt="node $HOME/debt-ledger/packages/cli/dist/index.js"
 ```
 
-If you'd rather have a real command than an alias (handy if you skip the
-plugin install described below), link it onto your PATH instead:
-
-```sh
-ln -s ~/debt-ledger/packages/cli/dist/index.js /usr/local/bin/debt
-```
-
-**Windows note:** instead of the alias above, add this function to your
-PowerShell profile (run `notepad $PROFILE` to open it), then start a new
-terminal:
+**Windows note:** instead of the alias, add this function to your PowerShell
+profile (run `notepad $PROFILE` to open it), then start a new terminal:
 
 ```powershell
 function debt { node "$HOME\debt-ledger\packages\cli\dist\index.js" @args }
 ```
 
 **Step 3 — check it works.** `debt --help` should print the list of
-commands. That's it — there's no account, no API key, and nothing leaves your
-machine.
+commands. There's no account, no API key, and nothing leaves your machine.
 
-## Everyday use
+The terminal loop mirrors what Claude does: `debt scan` to find candidate
+TODO comments, `debt scan --json > /tmp/c.json && debt triage --candidates
+/tmp/c.json` to review and record them (or plain `debt triage` to describe
+something yourself), `debt report` for the ranked list, `debt suggest
+--files a.ts,b.ts` or `--max-effort 2` for what's worth fixing now, and
+`debt status <id> fixed` when something's done. Commit
+`.techdebt/items.json` after it changes.
 
-Run all of these **inside the repo you want to track**, not inside this one.
-
-**Find candidates.** This looks through your code for `TODO`, `FIXME`, `HACK`
-and `XXX` comments — debt your past self already flagged:
-
-```sh
-debt scan
-```
-
-**Record the real ones.** Nothing goes on the list automatically — you review
-each candidate and put numbers on it. The prompts explain every question as
-you go:
-
-```sh
-debt scan --json > /tmp/candidates.json
-debt triage --candidates /tmp/candidates.json
-```
-
-You can also record something no comment marks (a clunky module, a missing
-test) with plain `debt triage` and describe it yourself. Afterwards,
-**commit the `.techdebt/items.json` file** — it's part of your repo now.
-
-**See what matters most:**
-
-```sh
-debt report
-```
-
-**Ask what's worth fixing right now.** Pass the files you're currently
-touching and it favours debt in those files; or cap by effort when you just
-have a spare afternoon:
-
-```sh
-debt suggest --files src/auth.ts,src/session.ts
-debt suggest --max-effort 2
-```
-
-**When you fix something** (or decide you never will):
-
-```sh
-debt status td-a4f2 fixed      # or: wontfix / planned / open
-```
-
-**When an estimate feels wrong** or a ticket it was blocking has shipped:
-
-```sh
-debt triage --revisit td-a4f2
-```
+(A local clone also works as a plugin marketplace, by the way:
+`/plugin marketplace add ~/debt-ledger`.)
 
 ## Every command, in one place
 
-Eight commands total. The first five are your daily tools; the last three
+Eight commands total. The first five are the daily tools; the last three
 mostly work behind the scenes (Claude uses them for you), but they're all
 yours to run.
 
@@ -179,83 +218,6 @@ With `--fix` it repairs what's safe to repair automatically (duplicate ids,
 formatting) and refuses anything that needs your judgment. Run it any
 time; it's also the second step of the merge-conflict recipe below.
 
-## Let Claude find the deeper debt
-
-The `scan` command only finds debt someone already wrote a comment about. The
-included Claude Code skill makes Claude actually read your code and propose
-the un-flagged debt — design problems, missing tests, copy-pasted logic —
-with suggested numbers and a written reason for each. You approve or edit
-everything in the chat before anything is saved.
-
-The easiest way to get it is the plugin. Inside Claude Code, run these two
-commands once (they work in any project):
-
-```
-/plugin marketplace add baked-bean-io/debt-ledger
-/plugin install debt-ledger@baked-bean-io
-```
-
-That's the whole install. The plugin carries its own copy of the `debt`
-command, so there is nothing to add to your PATH — the Step 2 alias above is
-only needed if you want to run `debt` yourself in a terminal.
-
-A local checkout works as a marketplace path too — `/plugin marketplace add
-~/debt-ledger` — handy if you're working from a clone instead of GitHub.
-
-**For a whole team:** commit the file `examples/claude-settings-plugin.json`
-into the repo you're tracking as `.claude/settings.json`. Anyone who opens
-that repo in Claude Code gets asked once whether to install the plugin —
-one click and they have it.
-
-### What you can ask Claude to do
-
-The skill gives Claude four jobs. In every one of them, Claude uses the same
-`debt` commands described above — it never edits the list file directly,
-and it never records anything without your yes in the chat.
-
-**1. Find debt.** Say things like *"scan src/auth for tech debt"* or *"look
-at the diff on this branch — any debt worth recording?"* Claude reads the
-code, proposes candidates in a table (with suggested numbers and a written
-reason for each, scored against the shared rubric), and iterates with you.
-Only when you confirm does it record them — and it checks the existing list
-first so it won't re-propose something already tracked.
-
-**2. Triage.** Say *"run a scan and triage the results with me"* or *"log
-this as tech debt: the retry logic in client.ts is copy-pasted from
-retry.ts."* Same confirmation gate: you set or approve every number before
-anything is saved. For re-estimating an existing item, Claude will point
-you at `debt triage --revisit <id>` (that one's interactive on
-purpose — the numbers are yours to change, not Claude's).
-
-**3. Suggest.** Say *"what debt should I fix while I'm in this file?"* or
-*"I've got a slack afternoon — what's worth fixing?"* Claude works out
-which files you're touching from git, asks the ranking for the answer, and
-presents it with each item's why-it-surfaced reason. It's not allowed to
-reorder the list or add its own picks — the ranking is arithmetic, and what
-you see is what the math said.
-
-**4. Bookkeeping.** Say *"td-a4f2 is fixed"* or *"we're never fixing that
-one."* Claude flips the status (confirming the id with you first if it's
-ambiguous) and reminds you to commit the change alongside the fix. If a
-command ever reports the list file is unhealthy — usually right after a
-merge — Claude will suggest `debt doctor`.
-
-## Get comments on pull requests (GitHub)
-
-The included GitHub Action leaves **one** comment on any pull request that
-touches files with known debt — showing which items live in the files being
-changed and how they rank. It updates that same comment on every push, stays
-completely silent on PRs that don't touch tracked debt, and won't nag a PR
-about the very item it fixes.
-
-To set it up:
-
-1. Copy `examples/debt-workflow.yml` into your repo as
-   `.github/workflows/debt-ledger.yml`.
-2. Push. That's all — the workflow file already asks GitHub for the two
-   permissions it needs (reading the code, writing the comment), and it
-   already points at `baked-bean-io/debt-ledger/action@main`.
-
 ## A nudge before you push (optional)
 
 If you'd like git to catch you adding new `TODO` comments *before* they leave
@@ -299,18 +261,6 @@ conflict. Here's the whole recipe:
 
 `debt doctor` (without `--fix`) is also safe to run any time you just
 want to check the ledger's health — it changes nothing.
-
-## How the ranking works, in plain words
-
-Each item's score is: **how much it hurts × how fast it's getting worse ×
-whether it's blocking other work, divided by how big the fix is.** Big pain,
-spreading fast, blocking a feature, cheap to fix → top of the list. Ugly but
-harmless and expensive to fix → bottom. The numbers come from you at triage
-time and never change on their own, so the order is stable, and two people
-looking at the same list see the same thing.
-
-For the formula itself and the reasoning behind it, see
-[DESIGN.md](DESIGN.md).
 
 ## For contributors
 

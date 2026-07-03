@@ -210,6 +210,17 @@ Three narrowly-scoped, human-invoked jobs:
 - The on-disk path stays `.techdebt/items.json` — renaming it would orphan
   existing ledgers for zero benefit.
 
+### Front-door inversion (2026-07-03)
+
+- The original adoption bet ("the CLI matters for adoption; the skill is the
+  differentiator, not the front door") is REVERSED for publication: the
+  Claude Code plugin is the first-class citizen and the primary way people
+  are expected to use the tool. The README leads with the two-command plugin
+  install and the conversational workflow; the terminal CLI is documented as
+  the secondary path (non-Claude teammates, scripts). The CLI remains fully
+  supported — it's the substrate the plugin drives — but it is no longer the
+  pitch.
+
 ## Calibration rubric (Q11)
 
 One screen, single source in `packages/core` docs; embedded in the skill's triage
