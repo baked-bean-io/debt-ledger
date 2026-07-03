@@ -36,7 +36,7 @@ describe('runAdd', () => {
     const { io, out } = capture();
     runAdd(root, { file }, io, '2026-07-02');
     expect(out).toHaveLength(2);
-    for (const id of out) expect(id).toMatch(/^td-[0-9a-z]{4}$/);
+    for (const id of out) expect(id).toMatch(/^td-[0-9a-f-]{36}$/);
     const ledger = readLedger(root);
     expect(ledger.items).toHaveLength(2);
     expect(ledger.items.map((i) => i.status)).toEqual(['open', 'open']);

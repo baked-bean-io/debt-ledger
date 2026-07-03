@@ -55,10 +55,10 @@ export function buildItem(
   answers: TriageAnswers,
   existingIds: Set<string>,
   today: string,
-  random?: () => number,
+  generate?: () => string,
 ): DebtItem {
   return {
-    id: mintId(existingIds, random),
+    id: mintId(existingIds, generate),
     title: answers.title,
     location: answers.location,
     category: answers.category,

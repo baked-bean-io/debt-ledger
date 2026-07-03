@@ -3575,14 +3575,10 @@ function parseLedger(json) {
 }
 
 // ../packages/core/dist/id.js
-var ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
-function mintId(existing, random = Math.random) {
+var import_node_crypto = require("node:crypto");
+function mintId(existing, generate = () => `td-${(0, import_node_crypto.randomUUID)()}`) {
   for (; ; ) {
-    let suffix = "";
-    for (let i = 0; i < 4; i++) {
-      suffix += ALPHABET[Math.floor(random() * ALPHABET.length)];
-    }
-    const id = `td-${suffix}`;
+    const id = generate();
     if (!existing.has(id))
       return id;
   }
@@ -3849,14 +3845,15 @@ function formatReport(ranked) {
   if (ranked.length === 0) {
     return "No open debt items in .techdebt/items.json\n";
   }
-  const lines = ["rank  score   id       status   e/i  title"];
+  const idWidth = Math.max(2, ...ranked.map((r) => r.item.id.length));
+  const lines = [`rank  score   ${"id".padEnd(idWidth)}  status   e/i  title`];
   ranked.forEach((r, i) => {
     const { item } = r;
     lines.push(
       [
         String(i + 1).padStart(4),
         r.score.toFixed(2).padStart(6),
-        item.id.padEnd(8),
+        item.id.padEnd(idWidth),
         item.status.padEnd(8),
         `${item.effort}/${item.impact}`.padEnd(4),
         item.title
@@ -4443,9 +4440,9 @@ function parseCandidates(json) {
     };
   });
 }
-function buildItem(answers, existingIds, today, random) {
+function buildItem(answers, existingIds, today, generate) {
   return {
-    id: mintId(existingIds, random),
+    id: mintId(existingIds, generate),
     title: answers.title,
     location: answers.location,
     category: answers.category,

@@ -40,7 +40,7 @@ describe('buildItem', () => {
     expect(item.status).toBe('open');
     expect(item.firstSeen).toBe('2026-07-02');
     expect(item.lastSeen).toBe('2026-07-02');
-    expect(item.id).toMatch(/^td-[0-9a-z]{4}$/);
+    expect(item.id).toMatch(/^td-[0-9a-f-]{36}$/);
   });
 
   test('omits blocksWork entirely when empty', () => {
