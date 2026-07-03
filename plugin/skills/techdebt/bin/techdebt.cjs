@@ -4732,6 +4732,143 @@ function runSuggest(root, opts, io = consoleIo6) {
   }
 }
 
+// ../packages/cli/src/commands/doctor.ts
+var import_node_fs6 = require("node:fs");
+var import_node_path4 = require("node:path");
+
+// ../packages/cli/src/doctor-core.ts
+var CONFLICT_MARKER = /^(<{7} |={7}$|>{7} )/m;
+function diagnose(raw) {
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (error) {
+    return {
+      ok: false,
+      conflictMarkers: CONFLICT_MARKER.test(raw),
+      parseError: error instanceof Error ? error.message : String(error),
+      itemErrors: [],
+      duplicateIds: [],
+      canonical: false
+    };
+  }
+  const d3 = data;
+  if (typeof data !== "object" || data === null || d3.version !== SCHEMA_VERSION || !Array.isArray(d3.items)) {
+    return {
+      ok: false,
+      conflictMarkers: false,
+      shapeError: `expected { "version": ${SCHEMA_VERSION}, "items": [...] }`,
+      itemErrors: [],
+      duplicateIds: [],
+      canonical: false
+    };
+  }
+  const items = d3.items;
+  const itemErrors = [];
+  items.forEach((item, i) => {
+    for (const e2 of validateItem(item)) itemErrors.push(`items[${i}]: ${e2}`);
+  });
+  const seen = /* @__PURE__ */ new Set();
+  const duplicateIds = [];
+  for (const item of items) {
+    const id = item.id;
+    if (typeof id !== "string") continue;
+    if (seen.has(id) && !duplicateIds.includes(id)) duplicateIds.push(id);
+    seen.add(id);
+  }
+  const canonical = raw === serializeLedger({ version: SCHEMA_VERSION, items });
+  return {
+    ok: itemErrors.length === 0 && duplicateIds.length === 0 && canonical,
+    conflictMarkers: false,
+    itemErrors,
+    duplicateIds,
+    canonical
+  };
+}
+function repair(raw, generate) {
+  const diagnosis = diagnose(raw);
+  if (diagnosis.parseError) {
+    throw new Error(
+      diagnosis.conflictMarkers ? "the ledger still contains merge conflict markers \u2014 edit the file, keep both versions of the items, then re-run doctor --fix" : `cannot repair: the ledger is not valid JSON (${diagnosis.parseError})`
+    );
+  }
+  if (diagnosis.shapeError) {
+    throw new Error(`cannot repair: ${diagnosis.shapeError}`);
+  }
+  if (diagnosis.itemErrors.length > 0) {
+    throw new Error(
+      `cannot repair invalid fields automatically \u2014 fix these by hand:
+${diagnosis.itemErrors.join("\n")}`
+    );
+  }
+  const { items } = JSON.parse(raw);
+  const all = new Set(items.map((i) => i.id));
+  const seen = /* @__PURE__ */ new Set();
+  const remapped = [];
+  for (const item of items) {
+    if (seen.has(item.id)) {
+      const to = mintId(all, generate);
+      remapped.push({ from: item.id, to });
+      item.id = to;
+      all.add(to);
+    }
+    seen.add(item.id);
+  }
+  return { ledger: { version: SCHEMA_VERSION, items }, remapped };
+}
+
+// ../packages/cli/src/commands/doctor.ts
+var consoleIo7 = {
+  out: (line) => console.log(line),
+  err: (line) => console.error(line)
+};
+function runDoctor(root, opts, io = consoleIo7) {
+  const path = (0, import_node_path4.join)(root, LEDGER_PATH);
+  if (!(0, import_node_fs6.existsSync)(path)) {
+    io.out(`no ledger at ${LEDGER_PATH} \u2014 nothing to check`);
+    return;
+  }
+  const raw = (0, import_node_fs6.readFileSync)(path, "utf8");
+  const d3 = diagnose(raw);
+  if (d3.ok) {
+    const count = JSON.parse(raw).items.length;
+    io.out(`ledger OK (${count} item(s))`);
+    return;
+  }
+  if (d3.parseError) {
+    io.err(
+      d3.conflictMarkers ? "unresolved merge conflict markers in the ledger \u2014 edit the file, keep both versions of the items, then run doctor --fix" : `ledger is not valid JSON: ${d3.parseError}`
+    );
+    process.exitCode = 1;
+    return;
+  }
+  if (d3.shapeError) {
+    io.err(`ledger has the wrong shape: ${d3.shapeError}`);
+    process.exitCode = 1;
+    return;
+  }
+  for (const e2 of d3.itemErrors) io.err(`invalid item: ${e2}`);
+  for (const id of d3.duplicateIds) {
+    io.err(`duplicate id: ${id}${opts.fix ? "" : " (doctor --fix will re-mint one)"}`);
+  }
+  if (!d3.canonical) {
+    io.err(`file is not in canonical form${opts.fix ? "" : " (doctor --fix will rewrite it)"}`);
+  }
+  if (!opts.fix) {
+    process.exitCode = 1;
+    return;
+  }
+  if (d3.itemErrors.length > 0) {
+    io.err("cannot fix invalid fields automatically \u2014 edit the reported items, then re-run");
+    process.exitCode = 1;
+    return;
+  }
+  const { ledger, remapped } = repair(raw);
+  writeLedger(root, ledger);
+  for (const r of remapped) io.out(`re-minted duplicate: ${r.from} -> ${r.to}`);
+  io.out(`ledger repaired and rewritten canonically (${ledger.items.length} item(s))`);
+}
+
 // ../packages/cli/src/parse-int.ts
 function parseIntStrict(value) {
   const n = Number.parseInt(value, 10);
@@ -4767,6 +4904,9 @@ program2.command("suggest").description("Suggest debt worth fixing now \u2014 ad
     limit: opts.limit,
     json: Boolean(opts.json)
   });
+});
+program2.command("doctor").description("Check the ledger for problems (bad JSON, duplicate ids, formatting); --fix repairs what is safe").option("--fix", "repair duplicates and formatting, rewrite the file canonically").action((opts) => {
+  runDoctor(process.cwd(), { fix: Boolean(opts.fix) });
 });
 program2.parseAsync(process.argv).catch((error) => {
   console.error(error instanceof Error ? error.message : String(error));

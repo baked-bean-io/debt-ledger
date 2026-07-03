@@ -7,6 +7,7 @@ import { runRubric } from './commands/rubric.js';
 import { runAdd } from './commands/add.js';
 import { runStatus } from './commands/status.js';
 import { runSuggest } from './commands/suggest.js';
+import { runDoctor } from './commands/doctor.js';
 import { parseIntStrict } from './parse-int.js';
 
 export const program = new Command();
@@ -79,6 +80,14 @@ program
       limit: opts.limit,
       json: Boolean(opts.json),
     });
+  });
+
+program
+  .command('doctor')
+  .description('Check the ledger for problems (bad JSON, duplicate ids, formatting); --fix repairs what is safe')
+  .option('--fix', 'repair duplicates and formatting, rewrite the file canonically')
+  .action((opts: { fix?: boolean }) => {
+    runDoctor(process.cwd(), { fix: Boolean(opts.fix) });
   });
 
 program.parseAsync(process.argv).catch((error: unknown) => {
