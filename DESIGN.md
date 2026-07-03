@@ -123,7 +123,7 @@ API key. The LLM only ever enters through the skill.
 Runs on PR open/synchronize. Surface-only in v1: match changed files against
 ledger locations. No LLM (v2 option only, after the ledger has earned trust).
 
-- **One sticky comment**, upserted via hidden marker (`<!-- techdebt-tracker -->`),
+- **One sticky comment**, upserted via hidden marker (`<!-- debt-ledger -->`),
   rewritten each run to current state; edited (not deleted) if matches drop to zero.
 - **Reads the ledger from the PR head** — a PR that fixes an item and flips it to
   `fixed` isn't nagged about it.
