@@ -1,6 +1,9 @@
-# Tech Debt Tracker — Design
+# debt-ledger — Design
 
-Open-source personal project. Dogfood target: Stratum.
+Open-source personal project, published at `baked-bean-io/debt-ledger`. Dogfood
+target: Stratum. (Named "Tech Debt Tracker" during initial design; the CLI
+command and skill are `debt`, the plugin is `debt-ledger` — see "Naming for
+publication" below.)
 
 Track tech debt per-project in a versioned ledger, rank it deterministically, and
 surface items only when relevant — when current work is adjacent to the debt's
@@ -11,7 +14,7 @@ a human decides.
 
 ```
 packages/core/        ← rank.ts, schema, ledger read/write, adjacency (pure TS, zero runtime deps)
-packages/cli/         ← npx entrypoint (`techdebt scan|report|triage`) — the OSS front door
+packages/cli/         ← the `debt` command (scan|triage|report|suggest|status|add|rubric|doctor)
 plugin/               ← Claude Code plugin: the skill + a bundled CLI (installable via /plugin)
 action/               ← GitHub Action: adjacency comment on PRs (no LLM per-PR)
 examples/
@@ -21,7 +24,9 @@ examples/
   data versioned alongside the code it describes.
 - Monorepo (**yarn workspaces**), not three repos — solo maintainer, avoid
   version-coordination overhead.
-- The CLI matters for adoption; the skill is the differentiator, not the front door.
+- The Claude Code plugin is the primary front door (see "Front-door inversion"
+  below); the standalone CLI is the substrate it drives and the path for
+  non-Claude users.
 
 ## Core principle: detection ≠ ranking
 
@@ -36,7 +41,7 @@ examples/
 
 ```ts
 interface DebtItem {
-  id: string;                // opaque slug (e.g. "td-a4f2"), generated at triage time
+  id: string;                // opaque slug `td-<uuid4>`, minted at triage time (old 4-char ids still valid)
   title: string;
   location: string[];        // repo-relative file paths (concrete files only in v1)
   category: 'design' | 'test' | 'dependency' | 'doc' | 'perf' | 'security';
@@ -104,13 +109,15 @@ stable debt that blocks active work.
 
 ## CLI (Q3)
 
-`npx techdebt scan|report|triage` — deterministic end-to-end, zero network, no
-API key. The LLM only ever enters through the skill.
+The `debt` command — deterministic end-to-end, zero network, no API key. The
+LLM only ever enters through the skill. The v1 core three below grew a
+non-interactive surface (`add`, `status`, `suggest`, `rubric`, `doctor`) so the
+skill can drive it — see "Skill decisions" and "Team-hardening decisions".
 
-- `scan`: pure static analysis — harvest TODO/FIXME/HACK/XXX comments into
-  candidates (`detectedBy: 'static-analysis'`), plus the location-staleness check.
-  Output is candidates, not ledger writes; feeds the same triage gate as LLM
-  detection.
+- `scan`: pure static analysis — harvest TODO/FIXME/HACK/XXX comments (from the
+  git file list) into candidates (`detectedBy: 'static-analysis'`), plus the
+  location-staleness check. Output is candidates, not ledger writes; feeds the
+  same triage gate as LLM detection.
 - `triage`: interactive prompt where estimates + rationale get frozen and ids
   minted. Also `--revisit <id>` to re-triage (prune stale blockers, adjust
   estimates); the diff is the audit trail.
@@ -145,7 +152,8 @@ ledger locations. No LLM (v2 option only, after the ledger has earned trust).
 
 ## Claude Code skill
 
-Three narrowly-scoped, human-invoked jobs:
+Four narrowly-scoped, human-invoked jobs (a status/bookkeeping job joined the
+original three — see "Skill decisions"):
 
 1. **Detect** — scan a diff/module, propose candidate DebtItems (`detectedBy: 'llm'`).
 2. **Triage** — fill soft estimates with rationale against the calibration rubric;
@@ -157,6 +165,10 @@ Three narrowly-scoped, human-invoked jobs:
    consumers). Slack is *declared, not detected*: with no adjacent work, Suggest
    falls through to the global ranking, optionally effort-capped ("things I can
    finish today"). Output: top N (~3) with score, rationale, and why-it-surfaced.
+4. **Status/bookkeeping** — flip an item's status (`debt status <id> <status>`)
+   when it's fixed, planned, or wontfixed, ideally in the same commit as the
+   fix; and point the user at `doctor` when a command reports an unhealthy
+   ledger.
 
 ### Skill decisions (2026-07-02)
 
@@ -175,13 +187,13 @@ Three narrowly-scoped, human-invoked jobs:
 - **`add` warns, never blocks, on location overlap** — the duplicate check
   is advisory because the human gate already passed in conversation.
 - **Distributed as a Claude Code plugin (2026-07-02).** `plugin/` wraps the
-  skill plus an esbuild-bundled CLI (`skills/techdebt/bin/techdebt.cjs`,
-  committed; the CI drift guard covers it). The repo doubles as the
-  marketplace via `.claude-plugin/marketplace.json`. The skill invokes the
-  bundled CLI through `${CLAUDE_SKILL_DIR}`, so installing the plugin is the
-  entire setup. `plugin.json` omits `version` deliberately: git-SHA
-  versioning means every commit is an update while the tool is young. The
-  standalone CLI (npx) remains the front door for non-Claude users.
+  skill plus an esbuild-bundled CLI (`skills/debt/bin/debt.cjs`, committed; the
+  CI drift guard covers it). The repo doubles as the marketplace via
+  `.claude-plugin/marketplace.json`. The skill invokes the bundled CLI through
+  `${CLAUDE_SKILL_DIR}`, so installing the plugin is the entire setup.
+  `plugin.json` omits `version` deliberately: git-SHA versioning means every
+  commit is an update while the tool is young. (The plugin later became the
+  primary front door — see "Front-door inversion".)
 
 ### Team-hardening decisions (2026-07-03)
 
@@ -189,7 +201,7 @@ Three narrowly-scoped, human-invoked jobs:
   on the old 4-char ids, and a duplicated id makes the merged ledger
   unreadable. Ids are now `td-<uuid4>`; old short ids stay valid (schema
   requires only a non-empty string). The report's id column sizes itself.
-- **`techdebt doctor [--fix]`.** Post-merge repair path: detects unresolved
+- **`debt doctor [--fix]`.** Post-merge repair path: detects unresolved
   conflict markers, duplicate ids, invalid fields, and non-canonical
   formatting; `--fix` re-mints later duplicates and rewrites canonically,
   and refuses anything requiring human judgment. Hand-editing the ledger is
@@ -247,8 +259,10 @@ prompt and echoed per-field in the CLI triage screen. Its job is estimate
 - Action is a small JS action bundling core via esbuild + `@actions/github` — not
   a composite action shelling to `npx` (avoids per-PR install latency and a
   registry dependency).
-- No changesets/publishing setup until after dogfooding. **Verify the npm package
-  name is available before the README bakes it in** (`techdebt` is likely taken).
+- No changesets/publishing setup until after dogfooding. The plugin and Action
+  ship straight from the GitHub repo (no npm needed). **Still open before any
+  npm publish:** check name availability for a `debt`/`debt-ledger` package
+  (both likely taken — a scoped `@baked-bean-io/*` name is the fallback).
 
 ## Explicitly rejected
 
@@ -261,10 +275,15 @@ prompt and echoed per-field in the CLI triage screen. Its job is estimate
 
 ## Build order
 
+All shipped as of 2026-07-03 and published; kept here as the original plan of
+record. Dogfooding on Stratum is ongoing — formula weights and rubric anchors
+are still expected to move.
+
 1. `packages/core` — schema, `rank.ts`, canonical serializer + ledger I/O,
-   adjacency matching, staleness check, tests.
-2. CLI wrapper (scan/triage/report).
-3. Skill (detect/triage/suggest).
-4. Action.
-5. Dogfood against Stratum; expect formula weights, rubric anchors, and schema to
-   take a couple of revisions before extraction/publishing.
+   adjacency matching, staleness check, tests. ✓
+2. CLI wrapper (scan/triage/report — later add/status/suggest/rubric/doctor). ✓
+3. Skill (detect/triage/suggest/status). ✓
+4. Action. ✓
+5. Then, beyond the original plan: Claude Code plugin, team-hardening
+   (UUID ids + `doctor`), rename, and MIT publication to
+   `baked-bean-io/debt-ledger`. ✓
