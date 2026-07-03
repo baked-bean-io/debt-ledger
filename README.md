@@ -34,7 +34,7 @@ The tool isn't on npm yet, so you run it straight from a copy of this repo.
 **Step 1 — get the code and build it.** In your terminal:
 
 ```sh
-git clone https://github.com/bakebean/debt-ledger ~/debt-ledger
+git clone https://github.com/baked-bean-io/debt-ledger ~/debt-ledger
 cd ~/debt-ledger
 yarn install && yarn build
 ```
@@ -191,8 +191,8 @@ The easiest way to get it is the plugin. Inside Claude Code, run these two
 commands once (they work in any project):
 
 ```
-/plugin marketplace add bakebean/debt-ledger
-/plugin install debt-ledger@bakebean
+/plugin marketplace add baked-bean-io/debt-ledger
+/plugin install debt-ledger@baked-bean-io
 ```
 
 That's the whole install. The plugin carries its own copy of the `debt`
@@ -254,7 +254,7 @@ To set it up:
    `.github/workflows/debt-ledger.yml`.
 2. Push. That's all — the workflow file already asks GitHub for the two
    permissions it needs (reading the code, writing the comment), and it
-   already points at `bakebean/debt-ledger/action@main`.
+   already points at `baked-bean-io/debt-ledger/action@main`.
 
 ## A nudge before you push (optional)
 

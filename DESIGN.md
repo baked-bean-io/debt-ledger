@@ -205,7 +205,7 @@ Three narrowly-scoped, human-invoked jobs:
 
 ### Naming for publication (2026-07-03)
 
-- Repo `bakebean/debt-ledger`; plugin `debt-ledger`; marketplace `bakebean`
+- Repo `baked-bean-io/debt-ledger`; plugin `debt-ledger`; marketplace `baked-bean-io`
   (org-named so future plugins share it); CLI command and skill are `debt`.
 - The on-disk path stays `.techdebt/items.json` — renaming it would orphan
   existing ledgers for zero benefit.

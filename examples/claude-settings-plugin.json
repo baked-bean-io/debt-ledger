@@ -1,13 +1,13 @@
 {
   "extraKnownMarketplaces": {
-    "bakebean": {
+    "baked-bean-io": {
       "source": {
         "source": "github",
-        "repo": "bakebean/debt-ledger"
+        "repo": "baked-bean-io/debt-ledger"
       }
     }
   },
   "enabledPlugins": {
-    "debt-ledger@bakebean": true
+    "debt-ledger@baked-bean-io": true
   }
 }

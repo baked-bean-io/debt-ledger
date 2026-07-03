@@ -14,4 +14,4 @@ jobs:
       # which contains the PR's ledger changes; the action reads the ledger
       # from the working tree.
       - uses: actions/checkout@v4
-      - uses: bakebean/debt-ledger/action@main
+      - uses: baked-bean-io/debt-ledger/action@main
