@@ -2,7 +2,7 @@ import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, test } from 'vitest';
-import { LEDGER_PATH, readLedger, serializeLedger, writeLedger } from '@techdebt/core';
+import { LEDGER_PATH, readLedger, serializeLedger, writeLedger } from '@debt-ledger/core';
 import { runDoctor } from '../src/commands/doctor.js';
 import { diagnose, repair } from '../src/doctor-core.js';
 import { makeItem } from './helpers.js';

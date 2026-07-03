@@ -2,7 +2,7 @@ import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
-import { readLedger, writeLedger } from '@techdebt/core';
+import { readLedger, writeLedger } from '@debt-ledger/core';
 import { runStatus } from '../src/commands/status.js';
 import { makeItem } from './helpers.js';
 

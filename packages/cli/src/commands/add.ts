@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { matchChangedFiles, readLedger, writeLedger } from '@techdebt/core';
+import { matchChangedFiles, readLedger, writeLedger } from '@debt-ledger/core';
 import { buildItem, parseConfirmedItems } from '../triage-core.js';
 import { todayIso } from '../today.js';
 

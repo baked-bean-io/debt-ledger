@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { findStaleItems, readLedger } from '@techdebt/core';
+import { findStaleItems, readLedger } from '@debt-ledger/core';
 import { harvestTodos, todosToCandidates } from '../todo-scan.js';
 
 export interface ScanIo {

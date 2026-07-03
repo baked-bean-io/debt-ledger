@@ -7,7 +7,7 @@ import {
   type DetectedBy,
   type Points,
   type Status,
-} from '@techdebt/core';
+} from '@debt-ledger/core';
 import type { Candidate } from './todo-scan.js';
 
 export function parseCandidates(json: string): Candidate[] {

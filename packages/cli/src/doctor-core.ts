@@ -5,7 +5,7 @@ import {
   validateItem,
   type DebtItem,
   type Ledger,
-} from '@techdebt/core';
+} from '@debt-ledger/core';
 
 export interface Diagnosis {
   ok: boolean;

@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { LEDGER_PATH, writeLedger } from '@techdebt/core';
+import { LEDGER_PATH, writeLedger } from '@debt-ledger/core';
 import { diagnose, repair } from '../doctor-core.js';
 
 export interface DoctorIo {

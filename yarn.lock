@@ -77,6 +77,44 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@debt-ledger/action@workspace:action":
+  version: 0.0.0-use.local
+  resolution: "@debt-ledger/action@workspace:action"
+  dependencies:
+    "@actions/core": "npm:^1.11.0"
+    "@actions/github": "npm:^6.0.0"
+    "@debt-ledger/core": "workspace:*"
+    esbuild: "npm:^0.25.0"
+  languageName: unknown
+  linkType: soft
+
+"@debt-ledger/cli@workspace:*, @debt-ledger/cli@workspace:packages/cli":
+  version: 0.0.0-use.local
+  resolution: "@debt-ledger/cli@workspace:packages/cli"
+  dependencies:
+    "@clack/prompts": "npm:^0.10.0"
+    "@debt-ledger/core": "workspace:*"
+    commander: "npm:^13.0.0"
+  bin:
+    debt: ./dist/index.js
+  languageName: unknown
+  linkType: soft
+
+"@debt-ledger/core@workspace:*, @debt-ledger/core@workspace:packages/core":
+  version: 0.0.0-use.local
+  resolution: "@debt-ledger/core@workspace:packages/core"
+  languageName: unknown
+  linkType: soft
+
+"@debt-ledger/plugin@workspace:plugin":
+  version: 0.0.0-use.local
+  resolution: "@debt-ledger/plugin@workspace:plugin"
+  dependencies:
+    "@debt-ledger/cli": "workspace:*"
+    esbuild: "npm:^0.25.0"
+  languageName: unknown
+  linkType: soft
+
 "@esbuild/aix-ppc64@npm:0.25.12":
   version: 0.25.12
   resolution: "@esbuild/aix-ppc64@npm:0.25.12"
@@ -759,44 +797,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@techdebt/action@workspace:action":
-  version: 0.0.0-use.local
-  resolution: "@techdebt/action@workspace:action"
-  dependencies:
-    "@actions/core": "npm:^1.11.0"
-    "@actions/github": "npm:^6.0.0"
-    "@techdebt/core": "workspace:*"
-    esbuild: "npm:^0.25.0"
-  languageName: unknown
-  linkType: soft
-
-"@techdebt/cli@workspace:*, @techdebt/cli@workspace:packages/cli":
-  version: 0.0.0-use.local
-  resolution: "@techdebt/cli@workspace:packages/cli"
-  dependencies:
-    "@clack/prompts": "npm:^0.10.0"
-    "@techdebt/core": "workspace:*"
-    commander: "npm:^13.0.0"
-  bin:
-    techdebt: ./dist/index.js
-  languageName: unknown
-  linkType: soft
-
-"@techdebt/core@workspace:*, @techdebt/core@workspace:packages/core":
-  version: 0.0.0-use.local
-  resolution: "@techdebt/core@workspace:packages/core"
-  languageName: unknown
-  linkType: soft
-
-"@techdebt/plugin@workspace:plugin":
-  version: 0.0.0-use.local
-  resolution: "@techdebt/plugin@workspace:plugin"
-  dependencies:
-    "@techdebt/cli": "workspace:*"
-    esbuild: "npm:^0.25.0"
-  languageName: unknown
-  linkType: soft
-
 "@types/chai@npm:^5.2.2":
   version: 5.2.3
   resolution: "@types/chai@npm:5.2.3"
@@ -974,6 +974,16 @@ __metadata:
   checksum: 10c0/7b8c5544bba704fbe84b7cab2e043df8586d5c114a4c5b607f83ae5060708940ed0b5bd5838cf8ce27539cde265c1cbd59ce3c8c6b017ed3eec8943e3a415164
   languageName: node
   linkType: hard
+
+"debt-ledger@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "debt-ledger@workspace:."
+  dependencies:
+    "@types/node": "npm:^22.0.0"
+    typescript: "npm:^5.7.0"
+    vitest: "npm:^3.0.0"
+  languageName: unknown
+  linkType: soft
 
 "debug@npm:^4.4.1":
   version: 4.4.3
@@ -1557,16 +1567,6 @@ __metadata:
   checksum: 10c0/7022e8cb04a8ceccc0689f2c731743fa2aab2e3c3f559f7dbc37b65ef7d5913049b427284eded2ec0765c5db5ff72dd7939fe2ae15785ff422cef2116c95d798
   languageName: node
   linkType: hard
-
-"techdebt-tracker@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "techdebt-tracker@workspace:."
-  dependencies:
-    "@types/node": "npm:^22.0.0"
-    typescript: "npm:^5.7.0"
-    vitest: "npm:^3.0.0"
-  languageName: unknown
-  linkType: soft
 
 "tinybench@npm:^2.9.0":
   version: 2.9.0

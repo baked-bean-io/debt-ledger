@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   resolve: {
     alias: {
-      '@techdebt/core': fileURLToPath(
+      '@debt-ledger/core': fileURLToPath(
         new URL('./packages/core/src/index.ts', import.meta.url),
       ),
     },

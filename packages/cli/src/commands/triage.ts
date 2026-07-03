@@ -15,7 +15,7 @@ import {
   type DetectedBy,
   type Points,
   type Status,
-} from '@techdebt/core';
+} from '@debt-ledger/core';
 import type { Candidate } from '../todo-scan.js';
 import { applyRevisit, buildItem, parseCandidates, type TriageAnswers } from '../triage-core.js';
 import { todayIso } from '../today.js';

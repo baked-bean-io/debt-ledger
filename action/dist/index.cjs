@@ -24019,7 +24019,7 @@ function matchChangedFiles(changedFiles, items) {
 }
 
 // src/comment.ts
-var MARKER = "<!-- techdebt-tracker -->";
+var MARKER = "<!-- debt-ledger -->";
 function scoreMatches(matches) {
   const filesById = new Map(matches.map((m) => [m.item.id, m.files]));
   return rank(matches.map((m) => m.item)).map((r) => ({

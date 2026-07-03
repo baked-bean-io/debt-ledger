@@ -1,4 +1,4 @@
-import { readLedger, STATUSES, writeLedger, type Status } from '@techdebt/core';
+import { readLedger, STATUSES, writeLedger, type Status } from '@debt-ledger/core';
 import { todayIso } from '../today.js';
 
 export interface StatusIo {

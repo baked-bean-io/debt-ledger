@@ -1,4 +1,4 @@
-import type { RankedItem } from '@techdebt/core';
+import type { RankedItem } from '@debt-ledger/core';
 
 export function formatReport(ranked: RankedItem[]): string {
   if (ranked.length === 0) {

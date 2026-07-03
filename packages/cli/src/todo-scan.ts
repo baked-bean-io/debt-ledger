@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
-import type { DetectedBy } from '@techdebt/core';
+import type { DetectedBy } from '@debt-ledger/core';
 
 export interface TodoCandidate {
   file: string;

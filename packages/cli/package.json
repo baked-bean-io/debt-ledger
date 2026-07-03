@@ -1,5 +1,5 @@
 {
-  "name": "@techdebt/cli",
+  "name": "@debt-ledger/cli",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.10.0",
-    "@techdebt/core": "workspace:*",
+    "@debt-ledger/core": "workspace:*",
     "commander": "^13.0.0"
   }
 }

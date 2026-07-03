@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { matchChangedFiles, readLedger } from '@techdebt/core';
+import { matchChangedFiles, readLedger } from '@debt-ledger/core';
 import { buildCommentBody, MARKER, scoreMatches } from './comment.js';
 
 async function run(): Promise<void> {

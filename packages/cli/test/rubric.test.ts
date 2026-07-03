@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { POINTS } from '@techdebt/core';
+import { POINTS } from '@debt-ledger/core';
 import { runRubric } from '../src/commands/rubric.js';
 
 function capture() {

@@ -1,4 +1,4 @@
-import { EFFORT_ANCHORS, IMPACT_ANCHORS, INTEREST_ANCHORS, POINTS } from '@techdebt/core';
+import { EFFORT_ANCHORS, IMPACT_ANCHORS, INTEREST_ANCHORS, POINTS } from '@debt-ledger/core';
 
 export interface RubricIo {
   out: (line: string) => void;

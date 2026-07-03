@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { matchChangedFiles } from '@techdebt/core';
+import { matchChangedFiles } from '@debt-ledger/core';
 import { buildCommentBody, MARKER, scoreMatches } from '../src/comment.js';
 import { makeItem } from './helpers.js';
 

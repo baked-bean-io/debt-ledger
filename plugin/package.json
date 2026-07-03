@@ -1,5 +1,5 @@
 {
-  "name": "@techdebt/plugin",
+  "name": "@debt-ledger/plugin",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -7,7 +7,7 @@
     "build": "esbuild ../packages/cli/src/index.ts --bundle --platform=node --target=node20 --format=cjs --outfile=skills/debt/bin/debt.cjs"
   },
   "dependencies": {
-    "@techdebt/cli": "workspace:*"
+    "@debt-ledger/cli": "workspace:*"
   },
   "devDependencies": {
     "esbuild": "^0.25.0"

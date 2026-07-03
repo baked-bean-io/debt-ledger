@@ -1,4 +1,4 @@
-import { readLedger, suggest } from '@techdebt/core';
+import { readLedger, suggest } from '@debt-ledger/core';
 
 export interface SuggestIo {
   out: (line: string) => void;

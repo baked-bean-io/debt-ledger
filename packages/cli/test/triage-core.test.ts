@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { validateItem } from '@techdebt/core';
+import { validateItem } from '@debt-ledger/core';
 import { applyRevisit, buildItem, parseCandidates, parseConfirmedItems, type TriageAnswers } from '../src/triage-core.js';
 import { makeItem } from './helpers.js';
 

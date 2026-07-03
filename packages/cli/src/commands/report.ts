@@ -1,4 +1,4 @@
-import { rank, readLedger } from '@techdebt/core';
+import { rank, readLedger } from '@debt-ledger/core';
 import { formatReport } from '../format.js';
 
 export interface ReportIo {

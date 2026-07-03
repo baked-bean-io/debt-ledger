@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { rank } from '@techdebt/core';
+import { rank } from '@debt-ledger/core';
 import { formatReport } from '../src/format.js';
 import { makeItem } from './helpers.js';
 

@@ -1,6 +1,6 @@
-import { rank, type AdjacencyMatch, type DebtItem } from '@techdebt/core';
+import { rank, type AdjacencyMatch, type DebtItem } from '@debt-ledger/core';
 
-export const MARKER = '<!-- techdebt-tracker -->';
+export const MARKER = '<!-- debt-ledger -->';
 
 export interface ScoredMatch {
   item: DebtItem;

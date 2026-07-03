@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { LedgerError } from '@techdebt/core';
+import { LedgerError } from '@debt-ledger/core';
 import { runScan } from './commands/scan.js';
 import { runReport } from './commands/report.js';
 import { runTriage } from './commands/triage.js';

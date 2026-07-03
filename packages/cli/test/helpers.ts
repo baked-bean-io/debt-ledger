@@ -1,4 +1,4 @@
-import type { DebtItem } from '@techdebt/core';
+import type { DebtItem } from '@debt-ledger/core';
 
 export function makeItem(overrides: Partial<DebtItem> = {}): DebtItem {
   return {

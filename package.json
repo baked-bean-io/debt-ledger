@@ -1,5 +1,5 @@
 {
-  "name": "techdebt-tracker",
+  "name": "debt-ledger",
   "private": true,
   "type": "module",
   "workspaces": [

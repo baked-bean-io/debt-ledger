@@ -1,5 +1,5 @@
 {
-  "name": "@techdebt/action",
+  "name": "@debt-ledger/action",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
   "dependencies": {
     "@actions/core": "^1.11.0",
     "@actions/github": "^6.0.0",
-    "@techdebt/core": "workspace:*"
+    "@debt-ledger/core": "workspace:*"
   },
   "devDependencies": {
     "esbuild": "^0.25.0"
