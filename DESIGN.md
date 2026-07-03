@@ -183,6 +183,22 @@ Three narrowly-scoped, human-invoked jobs:
   versioning means every commit is an update while the tool is young. The
   standalone CLI (npx) remains the front door for non-Claude users.
 
+### Team-hardening decisions (2026-07-03)
+
+- **UUID item ids.** Two branches minting items independently could collide
+  on the old 4-char ids, and a duplicated id makes the merged ledger
+  unreadable. Ids are now `td-<uuid4>`; old short ids stay valid (schema
+  requires only a non-empty string). The report's id column sizes itself.
+- **`techdebt doctor [--fix]`.** Post-merge repair path: detects unresolved
+  conflict markers, duplicate ids, invalid fields, and non-canonical
+  formatting; `--fix` re-mints later duplicates and rewrites canonically,
+  and refuses anything requiring human judgment. Hand-editing the ledger is
+  sanctioned in exactly one case: resolving a git merge conflict, followed
+  by `doctor --fix`.
+- Single-file ledger retained (Q4 stands) — with low write rates, canonical
+  formatting, and doctor, file-per-item remains deferred until a team
+  actually feels the pain.
+
 ## Calibration rubric (Q11)
 
 One screen, single source in `packages/core` docs; embedded in the skill's triage

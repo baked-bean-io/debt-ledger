@@ -188,6 +188,24 @@ To remove it later: `rm .git/hooks/pre-push`.
 **Windows note:** this works as-is if you installed Git for Windows (git runs
 hooks through its own bundled shell, even when you push from PowerShell).
 
+## If two branches change the debt list at once (merge conflicts)
+
+This is rare — the list only changes when someone records or updates an item,
+and the file is formatted so every item sits in its own tidy block. But when
+two branches both touch `.techdebt/items.json`, git may ask you to resolve a
+conflict. Here's the whole recipe:
+
+1. Open `.techdebt/items.json`, delete git's conflict markers (`<<<<<<<`,
+   `=======`, `>>>>>>>`), and **keep both versions of the items**. This is
+   the one situation where editing the file by hand is exactly right.
+2. Run `techdebt doctor --fix`. It checks the whole file, gives any
+   accidentally duplicated id a fresh one, and restores the standard
+   formatting.
+3. Commit. Done.
+
+`techdebt doctor` (without `--fix`) is also safe to run any time you just
+want to check the ledger's health — it changes nothing.
+
 ## How the ranking works, in plain words
 
 Each item's score is: **how much it hurts × how fast it's getting worse ×

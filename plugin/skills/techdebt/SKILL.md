@@ -123,3 +123,7 @@ used interchangeably.
 - Items whose rank leans on `blocksWork` show a "claims to block" warning
   in `techdebt report` — if a claimed blocker shipped, offer to prune it
   via `--revisit`.
+- If any techdebt command reports the ledger is unreadable or has duplicate
+  ids (typically right after a git merge), run `techdebt doctor` to see
+  what's wrong and `techdebt doctor --fix` to repair it. Doctor without
+  `--fix` never changes anything.
