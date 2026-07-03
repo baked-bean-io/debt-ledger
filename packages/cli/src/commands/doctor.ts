@@ -43,20 +43,27 @@ export function runDoctor(root: string, opts: { fix: boolean }, io: DoctorIo = c
     return;
   }
 
+  const canFix = d.itemErrors.length === 0 && !d.mangledMerge;
+
   for (const e of d.itemErrors) io.err(`invalid item: ${e}`);
   for (const id of d.duplicateIds) {
-    io.err(`duplicate id: ${id}${opts.fix ? '' : ' (doctor --fix will re-mint one)'}`);
+    io.err(`duplicate id: ${id}${opts.fix || !canFix ? '' : ' (doctor --fix will re-mint the later one(s))'}`);
+  }
+  if (d.mangledMerge) {
+    io.err(
+      'an item appears to contain fields from two merged versions — a merge was probably mis-resolved; compare with git history (git log -p .techdebt/items.json) and rebuild the affected items by hand',
+    );
   }
   if (!d.canonical) {
-    io.err(`file is not in canonical form${opts.fix ? '' : ' (doctor --fix will rewrite it)'}`);
+    io.err(`file is not in canonical form${opts.fix || !canFix ? '' : ' (doctor --fix will rewrite it)'}`);
   }
 
   if (!opts.fix) {
     process.exitCode = 1;
     return;
   }
-  if (d.itemErrors.length > 0) {
-    io.err('cannot fix invalid fields automatically — edit the reported items, then re-run');
+  if (d.itemErrors.length > 0 || d.mangledMerge) {
+    io.err('cannot fix this automatically — repair the reported problems by hand, then re-run');
     process.exitCode = 1;
     return;
   }

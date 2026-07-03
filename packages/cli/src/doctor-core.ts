@@ -15,6 +15,7 @@ export interface Diagnosis {
   itemErrors: string[];
   duplicateIds: string[];
   canonical: boolean;
+  mangledMerge: boolean;
 }
 
 const CONFLICT_MARKER = /^(<{7} |={7}$|>{7} )/m;
@@ -31,6 +32,7 @@ export function diagnose(raw: string): Diagnosis {
       itemErrors: [],
       duplicateIds: [],
       canonical: false,
+      mangledMerge: false,
     };
   }
 
@@ -43,6 +45,7 @@ export function diagnose(raw: string): Diagnosis {
       itemErrors: [],
       duplicateIds: [],
       canonical: false,
+      mangledMerge: false,
     };
   }
 
@@ -55,20 +58,29 @@ export function diagnose(raw: string): Diagnosis {
   const seen = new Set<string>();
   const duplicateIds: string[] = [];
   for (const item of items) {
+    if (typeof item !== 'object' || item === null) continue;
     const id = (item as { id?: unknown }).id;
     if (typeof id !== 'string') continue;
     if (seen.has(id) && !duplicateIds.includes(id)) duplicateIds.push(id);
     seen.add(id);
   }
 
-  const canonical = raw === serializeLedger({ version: SCHEMA_VERSION, items });
+  // A mis-resolved merge squashes two items into one object with duplicate
+  // JSON keys; JSON.parse keeps the last, silently losing an item. Every
+  // item has exactly one "id" key in canonical form, so more raw "id" keys
+  // than parsed items means fields from two versions got merged into one.
+  const idKeyCount = (raw.match(/"id"\s*:/g) ?? []).length;
+  const mangledMerge = idKeyCount > items.length;
+
+  const canonical = itemErrors.length === 0 && raw === serializeLedger({ version: SCHEMA_VERSION, items });
 
   return {
-    ok: itemErrors.length === 0 && duplicateIds.length === 0 && canonical,
+    ok: itemErrors.length === 0 && duplicateIds.length === 0 && canonical && !mangledMerge,
     conflictMarkers: false,
     itemErrors,
     duplicateIds,
     canonical,
+    mangledMerge,
   };
 }
 
@@ -94,6 +106,11 @@ export function repair(raw: string, generate?: () => string): Repair {
   if (diagnosis.itemErrors.length > 0) {
     throw new Error(
       `cannot repair invalid fields automatically — fix these by hand:\n${diagnosis.itemErrors.join('\n')}`,
+    );
+  }
+  if (diagnosis.mangledMerge) {
+    throw new Error(
+      'cannot repair: an item seems to contain fields from two merged versions (more "id" fields than items) — rebuild the affected items by hand from git history, then re-run',
     );
   }
 

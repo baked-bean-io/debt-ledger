@@ -3476,10 +3476,6 @@ var {
   Help
 } = import_index.default;
 
-// ../packages/cli/src/commands/scan.ts
-var import_node_fs3 = require("node:fs");
-var import_node_path3 = require("node:path");
-
 // ../packages/core/dist/schema.js
 var SCHEMA_VERSION = 1;
 var CATEGORIES = ["design", "test", "dependency", "doc", "perf", "security"];
@@ -3716,6 +3712,10 @@ var INTEREST_ANCHORS = [
   [0.5, "each new feature in the area copies the bad pattern"],
   [0.8, "actively spreading \u2014 other modules now depend on the wrong shape"]
 ];
+
+// ../packages/cli/src/commands/scan.ts
+var import_node_fs3 = require("node:fs");
+var import_node_path3 = require("node:path");
 
 // ../packages/cli/src/todo-scan.ts
 var import_node_child_process = require("node:child_process");
@@ -4749,7 +4749,8 @@ function diagnose(raw) {
       parseError: error instanceof Error ? error.message : String(error),
       itemErrors: [],
       duplicateIds: [],
-      canonical: false
+      canonical: false,
+      mangledMerge: false
     };
   }
   const d3 = data;
@@ -4760,7 +4761,8 @@ function diagnose(raw) {
       shapeError: `expected { "version": ${SCHEMA_VERSION}, "items": [...] }`,
       itemErrors: [],
       duplicateIds: [],
-      canonical: false
+      canonical: false,
+      mangledMerge: false
     };
   }
   const items = d3.items;
@@ -4771,18 +4773,22 @@ function diagnose(raw) {
   const seen = /* @__PURE__ */ new Set();
   const duplicateIds = [];
   for (const item of items) {
+    if (typeof item !== "object" || item === null) continue;
     const id = item.id;
     if (typeof id !== "string") continue;
     if (seen.has(id) && !duplicateIds.includes(id)) duplicateIds.push(id);
     seen.add(id);
   }
-  const canonical = raw === serializeLedger({ version: SCHEMA_VERSION, items });
+  const idKeyCount = (raw.match(/"id"\s*:/g) ?? []).length;
+  const mangledMerge = idKeyCount > items.length;
+  const canonical = itemErrors.length === 0 && raw === serializeLedger({ version: SCHEMA_VERSION, items });
   return {
-    ok: itemErrors.length === 0 && duplicateIds.length === 0 && canonical,
+    ok: itemErrors.length === 0 && duplicateIds.length === 0 && canonical && !mangledMerge,
     conflictMarkers: false,
     itemErrors,
     duplicateIds,
-    canonical
+    canonical,
+    mangledMerge
   };
 }
 function repair(raw, generate) {
@@ -4799,6 +4805,11 @@ function repair(raw, generate) {
     throw new Error(
       `cannot repair invalid fields automatically \u2014 fix these by hand:
 ${diagnosis.itemErrors.join("\n")}`
+    );
+  }
+  if (diagnosis.mangledMerge) {
+    throw new Error(
+      'cannot repair: an item seems to contain fields from two merged versions (more "id" fields than items) \u2014 rebuild the affected items by hand from git history, then re-run'
     );
   }
   const { items } = JSON.parse(raw);
@@ -4847,19 +4858,25 @@ function runDoctor(root, opts, io = consoleIo7) {
     process.exitCode = 1;
     return;
   }
+  const canFix = d3.itemErrors.length === 0 && !d3.mangledMerge;
   for (const e2 of d3.itemErrors) io.err(`invalid item: ${e2}`);
   for (const id of d3.duplicateIds) {
-    io.err(`duplicate id: ${id}${opts.fix ? "" : " (doctor --fix will re-mint one)"}`);
+    io.err(`duplicate id: ${id}${opts.fix || !canFix ? "" : " (doctor --fix will re-mint the later one(s))"}`);
+  }
+  if (d3.mangledMerge) {
+    io.err(
+      "an item appears to contain fields from two merged versions \u2014 a merge was probably mis-resolved; compare with git history (git log -p .techdebt/items.json) and rebuild the affected items by hand"
+    );
   }
   if (!d3.canonical) {
-    io.err(`file is not in canonical form${opts.fix ? "" : " (doctor --fix will rewrite it)"}`);
+    io.err(`file is not in canonical form${opts.fix || !canFix ? "" : " (doctor --fix will rewrite it)"}`);
   }
   if (!opts.fix) {
     process.exitCode = 1;
     return;
   }
-  if (d3.itemErrors.length > 0) {
-    io.err("cannot fix invalid fields automatically \u2014 edit the reported items, then re-run");
+  if (d3.itemErrors.length > 0 || d3.mangledMerge) {
+    io.err("cannot fix this automatically \u2014 repair the reported problems by hand, then re-run");
     process.exitCode = 1;
     return;
   }
@@ -4910,6 +4927,9 @@ program2.command("doctor").description("Check the ledger for problems (bad JSON,
 });
 program2.parseAsync(process.argv).catch((error) => {
   console.error(error instanceof Error ? error.message : String(error));
+  if (error instanceof LedgerError) {
+    console.error("run `techdebt doctor` to inspect the ledger, or `techdebt doctor --fix` to repair it");
+  }
   process.exitCode = 1;
 });
 // Annotate the CommonJS export names for ESM import in node:

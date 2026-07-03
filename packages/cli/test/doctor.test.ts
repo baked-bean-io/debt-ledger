@@ -115,3 +115,38 @@ describe('runDoctor', () => {
     expect(process.exitCode).toBeUndefined();
   });
 });
+
+describe('mangled merges and hostile input', () => {
+  test('diagnose flags an item carrying two id fields (mis-resolved merge)', () => {
+    const mangled = canonical.replace('"title":', '"id": "td-other",\n      "title":');
+    const d = diagnose(mangled);
+    expect(d.mangledMerge).toBe(true);
+    expect(d.ok).toBe(false);
+  });
+
+  test('repair refuses a mangled merge', () => {
+    const mangled = canonical.replace('"title":', '"id": "td-other",\n      "title":');
+    expect(() => repair(mangled)).toThrow(/two merged versions/);
+  });
+
+  test('diagnose survives a null item without throwing', () => {
+    const d = diagnose('{"version":1,"items":[null]}');
+    expect(d.itemErrors.length).toBeGreaterThan(0);
+    expect(d.canonical).toBe(false);
+  });
+
+  test('runDoctor --fix repairs formatting-only drift with no remaps', () => {
+    const root = mkdtempSync(join(tmpdir(), 'techdebt-doctor-fmt-'));
+    writeLedger(root, { version: 1, items: [makeItem()] });
+    writeFileSync(join(root, LEDGER_PATH), `${canonical}\n\n`);
+    const out: string[] = [];
+    const err: string[] = [];
+    runDoctor(root, { fix: true }, { out: (s) => out.push(s), err: (s) => err.push(s) });
+    expect(out.join('\n')).toContain('repaired and rewritten');
+    expect(out.join('\n')).not.toContain('re-minted');
+    process.exitCode = undefined;
+    const again: string[] = [];
+    runDoctor(root, { fix: false }, { out: (s) => again.push(s), err: () => {} });
+    expect(again.join('\n')).toContain('ledger OK');
+  });
+});

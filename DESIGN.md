@@ -198,6 +198,10 @@ Three narrowly-scoped, human-invoked jobs:
 - Single-file ledger retained (Q4 stands) — with low write rates, canonical
   formatting, and doctor, file-per-item remains deferred until a team
   actually feels the pain.
+- Doctor detects mis-resolved merges (an item carrying two `"id"` fields)
+  and refuses `--fix` rather than certifying a ledger that silently lost an
+  item. A future enhancement could auto-resolve conflict markers by parsing
+  both sides and unioning the items — noted, not built.
 
 ## Calibration rubric (Q11)
 

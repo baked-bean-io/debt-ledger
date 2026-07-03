@@ -195,12 +195,19 @@ and the file is formatted so every item sits in its own tidy block. But when
 two branches both touch `.techdebt/items.json`, git may ask you to resolve a
 conflict. Here's the whole recipe:
 
-1. Open `.techdebt/items.json`, delete git's conflict markers (`<<<<<<<`,
-   `=======`, `>>>>>>>`), and **keep both versions of the items**. This is
-   the one situation where editing the file by hand is exactly right.
+1. Open `.techdebt/items.json` and look closely at the conflicted area. Git
+   usually puts the conflict *inside* a single item block, because both
+   branches' new entries begin and end with the same lines. Delete the
+   markers (`<<<<<<<`, `=======`, `>>>>>>>`) and rebuild the two versions as
+   **two complete items** — each wrapped in its own `{ ... }`, separated by
+   a comma, each with its own `"id"` line. Keeping both items is the goal;
+   this is the one situation where editing the file by hand is exactly right.
 2. Run `techdebt doctor --fix`. It checks the whole file, gives any
    accidentally duplicated id a fresh one, and restores the standard
    formatting.
+   If the two versions were accidentally squashed into one item, doctor
+   refuses to fix and tells you — rebuild that item from git history
+   (`git log -p .techdebt/items.json`) and run it again.
 3. Commit. Done.
 
 `techdebt doctor` (without `--fix`) is also safe to run any time you just

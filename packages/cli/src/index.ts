@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
+import { LedgerError } from '@techdebt/core';
 import { runScan } from './commands/scan.js';
 import { runReport } from './commands/report.js';
 import { runTriage } from './commands/triage.js';
@@ -92,5 +93,8 @@ program
 
 program.parseAsync(process.argv).catch((error: unknown) => {
   console.error(error instanceof Error ? error.message : String(error));
+  if (error instanceof LedgerError) {
+    console.error('run `techdebt doctor` to inspect the ledger, or `techdebt doctor --fix` to repair it');
+  }
   process.exitCode = 1;
 });
