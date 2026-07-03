@@ -117,6 +117,68 @@ techdebt status td-a4f2 fixed      # or: wontfix / planned / open
 techdebt triage --revisit td-a4f2
 ```
 
+## Every command, in one place
+
+Eight commands total. The first five are your daily tools; the last three
+mostly work behind the scenes (Claude uses them for you), but they're all
+yours to run.
+
+**`techdebt scan`** — reads your code and lists every `TODO`, `FIXME`,
+`HACK` and `XXX` comment as a *candidate*: something that might deserve a
+spot on the list. It never writes anything. It only looks at files git
+knows about, so build output and other ignored junk can't slow it down. It
+also warns you if any recorded item points at a file that no longer exists.
+Add `--json` to get the candidates as data you can pipe into `triage`.
+
+**`techdebt triage`** — the front door to the list. Everything on the list
+went through this (or through Claude asking you). Three ways to use it:
+
+- `techdebt triage` on its own: describe one piece of debt yourself,
+  question by question.
+- `techdebt triage --candidates <file>`: walk through what `scan --json`
+  found, one candidate at a time — skip the noise, keep the real ones.
+- `techdebt triage --revisit <id>`: reopen an existing item to change its
+  numbers, prune a blocker that shipped, or change its status.
+
+Every question shows you the measuring stick (see `rubric`) as you answer,
+and each confirmed item is saved immediately — quitting halfway loses
+nothing.
+
+**`techdebt report`** — the ranked list: every open item, best
+value-for-effort first, with a warning line under anything whose rank
+depends on a "this blocks other work" claim, so stale claims get noticed
+and pruned. `--json` gives the same thing as data.
+
+**`techdebt suggest`** — "what should I fix right now?" With
+`--files a.ts,b.ts` it shows only debt living in those files (fix it while
+you're already there — the whole point of the tool). Without `--files` it
+falls back to the overall top of the list. `--max-effort 2` keeps
+suggestions small enough for the time you actually have, `--limit` changes
+how many you get (normally 3), and every suggestion says *why* it came up.
+
+**`techdebt status <id> <status>`** — one-line bookkeeping when things
+change: `techdebt status td-a4f2 fixed`. The four statuses: `open`,
+`planned` (scheduled but not done — still ranks), `fixed` and `wontfix`
+(both drop out of the ranking but stay in the file as history). Do this in
+the same commit as the fix.
+
+**`techdebt add`** — records already-confirmed items from a JSON file
+(`--file`) or piped input, and prints the new ids. This is how Claude
+writes to the list after you've said yes in chat; you'll rarely type it
+yourself. See `examples/confirmed-items.example.json` for the shape.
+
+**`techdebt rubric`** — prints the measuring stick: what a 1-2-3-5-8 means
+for effort and for impact, and which "getting worse" rates to use. It
+exists so everyone on a team scores debt against the same yardstick.
+`--json` for tools.
+
+**`techdebt doctor`** — health check for the list file. On its own it only
+reports problems: broken JSON, leftover merge-conflict markers, duplicate
+ids, wrong formatting, or an item that looks like a mis-resolved merge.
+With `--fix` it repairs what's safe to repair automatically (duplicate ids,
+formatting) and refuses anything that needs your judgment. Run it any
+time; it's also the second step of the merge-conflict recipe below.
+
 ## Let Claude find the deeper debt
 
 The `scan` command only finds debt someone already wrote a comment about. The
@@ -145,12 +207,38 @@ into the repo you're tracking as `.claude/settings.json` (fill in the real
 GitHub name). Anyone who opens that repo in Claude Code gets asked once
 whether to install the plugin — one click and they have it.
 
-Then just talk to Claude Code inside that repo:
+### What you can ask Claude to do
 
-- *"scan src/auth for tech debt"*
-- *"what debt should I fix while I'm in this file?"*
-- *"I've got a slack afternoon — what's worth fixing?"*
-- *"td-a4f2 is fixed"*
+The skill gives Claude four jobs. In every one of them, Claude uses the same
+`techdebt` commands described above — it never edits the list file directly,
+and it never records anything without your yes in the chat.
+
+**1. Find debt.** Say things like *"scan src/auth for tech debt"* or *"look
+at the diff on this branch — any debt worth recording?"* Claude reads the
+code, proposes candidates in a table (with suggested numbers and a written
+reason for each, scored against the shared rubric), and iterates with you.
+Only when you confirm does it record them — and it checks the existing list
+first so it won't re-propose something already tracked.
+
+**2. Triage.** Say *"run a scan and triage the results with me"* or *"log
+this as tech debt: the retry logic in client.ts is copy-pasted from
+retry.ts."* Same confirmation gate: you set or approve every number before
+anything is saved. For re-estimating an existing item, Claude will point
+you at `techdebt triage --revisit <id>` (that one's interactive on
+purpose — the numbers are yours to change, not Claude's).
+
+**3. Suggest.** Say *"what debt should I fix while I'm in this file?"* or
+*"I've got a slack afternoon — what's worth fixing?"* Claude works out
+which files you're touching from git, asks the ranking for the answer, and
+presents it with each item's why-it-surfaced reason. It's not allowed to
+reorder the list or add its own picks — the ranking is arithmetic, and what
+you see is what the math said.
+
+**4. Bookkeeping.** Say *"td-a4f2 is fixed"* or *"we're never fixing that
+one."* Claude flips the status (confirming the id with you first if it's
+ambiguous) and reminds you to commit the change alongside the fix. If a
+command ever reports the list file is unhealthy — usually right after a
+merge — Claude will suggest `techdebt doctor`.
 
 ## Get comments on pull requests (GitHub)
 
