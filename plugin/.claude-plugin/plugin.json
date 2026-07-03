@@ -4,5 +4,6 @@
   "author": {
     "name": "Mike McEwen"
   },
-  "homepage": "https://github.com/bakebean/debt-ledger"
+  "homepage": "https://github.com/bakebean/debt-ledger",
+  "license": "MIT"
 }
