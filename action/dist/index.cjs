@@ -24048,7 +24048,7 @@ This PR no longer touches any tracked tech debt.`;
       `| ${m.item.id} | ${m.score.toFixed(2)} | ${m.item.status} | ${m.item.effort}/${m.item.impact} | ${escapeCell(m.item.title)} | ${m.files.map((f) => `\`${escapeCell(f)}\``).join(", ")} |`
     );
   }
-  lines.push("", "_Ordered by the ledger's deterministic score. Run `techdebt report` locally for the full list._");
+  lines.push("", "_Ordered by the ledger's deterministic score. Run `debt report` locally for the full list._");
   return lines.join("\n");
 }
 

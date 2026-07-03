@@ -33,7 +33,7 @@ describe('buildCommentBody', () => {
     );
     const body = buildCommentBody(scored);
     expect(body).toContain('| td-abcd | 1.20 | open | 3/3 | untangle auth | `src/a.ts` |');
-    expect(body).toContain('techdebt report');
+    expect(body).toContain('debt report');
   });
 
   test('escapes pipes in titles so the table cannot break', () => {

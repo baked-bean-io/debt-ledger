@@ -3837,7 +3837,7 @@ function runScan(root, opts, io = consoleIo) {
 `);
   for (const c of candidates) io.out(`  ${c.title}`);
   io.out("");
-  io.out("To triage: techdebt scan --json > candidates.json && techdebt triage --candidates candidates.json");
+  io.out("To triage: debt scan --json > candidates.json && debt triage --candidates candidates.json");
 }
 
 // ../packages/cli/src/format.ts
@@ -4426,7 +4426,7 @@ function parseCandidates(json) {
     throw new Error("candidates file is not valid JSON");
   }
   if (!Array.isArray(data)) {
-    throw new Error("candidates file must be a JSON array (produced by `techdebt scan --json`)");
+    throw new Error("candidates file must be a JSON array (produced by `debt scan --json`)");
   }
   return data.map((c, i) => {
     const v2 = c ?? {};
@@ -4591,7 +4591,7 @@ async function promptAnswers(init, current) {
 }
 async function runTriage(root, opts) {
   const ledger = readLedger(root);
-  Ie("techdebt triage");
+  Ie("debt triage");
   if (opts.revisitId) {
     const item = ledger.items.find((i) => i.id === opts.revisitId);
     if (!item) {
@@ -4895,14 +4895,14 @@ function parseIntStrict(value) {
 
 // ../packages/cli/src/index.ts
 var program2 = new Command();
-program2.name("techdebt").description("Track and rank tech debt in a versioned per-repo ledger (.techdebt/items.json)");
+program2.name("debt").description("Track and rank tech debt in a versioned per-repo ledger (.techdebt/items.json)");
 program2.command("scan").description("Harvest TODO/FIXME/HACK/XXX comments as candidates; warn about stale ledger locations").option("--json", "print candidates as JSON on stdout (warnings go to stderr)").action((opts) => {
   runScan(process.cwd(), { json: Boolean(opts.json) });
 });
 program2.command("report").description("Print the debt ledger ranked by priority (score desc, impact desc, id asc)").option("--json", "emit the ranked items as JSON").action((opts) => {
   runReport(process.cwd(), { json: Boolean(opts.json) });
 });
-program2.command("triage").description("Interactively confirm candidates into the ledger (the human freeze step)").option("--candidates <file>", "candidates JSON produced by `techdebt scan --json`").option("--revisit <id>", "re-triage an existing item: adjust estimates, prune blockers, change status").action(async (opts) => {
+program2.command("triage").description("Interactively confirm candidates into the ledger (the human freeze step)").option("--candidates <file>", "candidates JSON produced by `debt scan --json`").option("--revisit <id>", "re-triage an existing item: adjust estimates, prune blockers, change status").action(async (opts) => {
   await runTriage(process.cwd(), { candidatesFile: opts.candidates, revisitId: opts.revisit });
 });
 program2.command("rubric").description("Print the calibration rubric (effort/impact/interestRate anchors)").option("--json", "machine-readable anchors").action((opts) => {
@@ -4928,7 +4928,7 @@ program2.command("doctor").description("Check the ledger for problems (bad JSON,
 program2.parseAsync(process.argv).catch((error) => {
   console.error(error instanceof Error ? error.message : String(error));
   if (error instanceof LedgerError) {
-    console.error("run `techdebt doctor` to inspect the ledger, or `techdebt doctor --fix` to repair it");
+    console.error("run `debt doctor` to inspect the ledger, or `debt doctor --fix` to repair it");
   }
   process.exitCode = 1;
 });

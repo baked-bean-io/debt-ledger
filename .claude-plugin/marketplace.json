@@ -1,11 +1,11 @@
 {
-  "name": "techdebt",
+  "name": "bakebean",
   "owner": {
     "name": "Mike McEwen"
   },
   "plugins": [
     {
-      "name": "techdebt",
+      "name": "debt-ledger",
       "source": "./plugin",
       "description": "Track and rank tech debt in a versioned ledger — scan, triage, suggest, and status, straight from Claude Code.",
       "category": "productivity"

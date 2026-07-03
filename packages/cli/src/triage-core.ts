@@ -18,7 +18,7 @@ export function parseCandidates(json: string): Candidate[] {
     throw new Error('candidates file is not valid JSON');
   }
   if (!Array.isArray(data)) {
-    throw new Error('candidates file must be a JSON array (produced by `techdebt scan --json`)');
+    throw new Error('candidates file must be a JSON array (produced by `debt scan --json`)');
   }
   return data.map((c, i) => {
     const v = (c ?? {}) as Record<string, unknown>;
@@ -97,7 +97,7 @@ export function applyRevisit(
   };
 }
 
-// Parses the confirmed-items JSON the skill hands to `techdebt add`. The
+// Parses the confirmed-items JSON the skill hands to `debt add`. The
 // human gate already happened in conversation; this is the machine check
 // that what was confirmed is schema-valid. Validation delegates to core
 // validateItem via a probe item so the rules live in exactly one place.

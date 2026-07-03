@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild ../packages/cli/src/index.ts --bundle --platform=node --target=node20 --format=cjs --outfile=skills/techdebt/bin/techdebt.cjs"
+    "build": "esbuild ../packages/cli/src/index.ts --bundle --platform=node --target=node20 --format=cjs --outfile=skills/debt/bin/debt.cjs"
   },
   "dependencies": {
     "@techdebt/cli": "workspace:*"

@@ -203,6 +203,13 @@ Three narrowly-scoped, human-invoked jobs:
   item. A future enhancement could auto-resolve conflict markers by parsing
   both sides and unioning the items — noted, not built.
 
+### Naming for publication (2026-07-03)
+
+- Repo `bakebean/debt-ledger`; plugin `debt-ledger`; marketplace `bakebean`
+  (org-named so future plugins share it); CLI command and skill are `debt`.
+- The on-disk path stays `.techdebt/items.json` — renaming it would orphan
+  existing ledgers for zero benefit.
+
 ## Calibration rubric (Q11)
 
 One screen, single source in `packages/core` docs; embedded in the skill's triage

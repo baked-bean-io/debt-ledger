@@ -41,7 +41,7 @@ describe('runScan', () => {
     const text = out.join('\n');
     expect(text).toContain('1 candidate');
     expect(text).toContain('TODO: tighten types');
-    expect(text).toContain('techdebt triage');
+    expect(text).toContain('debt triage');
   });
 
   test('warns on stderr about stale ledger locations', () => {

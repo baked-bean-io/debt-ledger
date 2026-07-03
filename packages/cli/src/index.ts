@@ -14,7 +14,7 @@ import { parseIntStrict } from './parse-int.js';
 export const program = new Command();
 
 program
-  .name('techdebt')
+  .name('debt')
   .description('Track and rank tech debt in a versioned per-repo ledger (.techdebt/items.json)');
 
 program
@@ -36,7 +36,7 @@ program
 program
   .command('triage')
   .description('Interactively confirm candidates into the ledger (the human freeze step)')
-  .option('--candidates <file>', 'candidates JSON produced by `techdebt scan --json`')
+  .option('--candidates <file>', 'candidates JSON produced by `debt scan --json`')
   .option('--revisit <id>', 're-triage an existing item: adjust estimates, prune blockers, change status')
   .action(async (opts: { candidates?: string; revisit?: string }) => {
     await runTriage(process.cwd(), { candidatesFile: opts.candidates, revisitId: opts.revisit });
@@ -94,7 +94,7 @@ program
 program.parseAsync(process.argv).catch((error: unknown) => {
   console.error(error instanceof Error ? error.message : String(error));
   if (error instanceof LedgerError) {
-    console.error('run `techdebt doctor` to inspect the ledger, or `techdebt doctor --fix` to repair it');
+    console.error('run `debt doctor` to inspect the ledger, or `debt doctor --fix` to repair it');
   }
   process.exitCode = 1;
 });

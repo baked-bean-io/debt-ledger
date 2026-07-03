@@ -113,7 +113,7 @@ export async function runTriage(
   opts: { candidatesFile?: string; revisitId?: string },
 ): Promise<void> {
   const ledger = readLedger(root);
-  p.intro('techdebt triage');
+  p.intro('debt triage');
 
   if (opts.revisitId) {
     const item = ledger.items.find((i) => i.id === opts.revisitId);

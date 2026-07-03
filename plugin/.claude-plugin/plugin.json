@@ -1,7 +1,8 @@
 {
-  "name": "techdebt",
-  "description": "Tech-debt ledger for your repo: Claude finds debt and proposes estimates, you confirm in chat, simple arithmetic ranks it. The techdebt CLI is bundled — nothing else to install.",
+  "name": "debt-ledger",
+  "description": "Tech-debt ledger for your repo: Claude finds debt and proposes estimates, you confirm in chat, simple arithmetic ranks it. The debt CLI is bundled — nothing else to install.",
   "author": {
     "name": "Mike McEwen"
-  }
+  },
+  "homepage": "https://github.com/bakebean/debt-ledger"
 }

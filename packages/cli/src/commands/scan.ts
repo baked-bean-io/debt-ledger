@@ -36,5 +36,5 @@ export function runScan(root: string, opts: { json: boolean }, io: ScanIo = cons
   io.out(`${candidates.length} candidate(s) found:\n`);
   for (const c of candidates) io.out(`  ${c.title}`);
   io.out('');
-  io.out('To triage: techdebt scan --json > candidates.json && techdebt triage --candidates candidates.json');
+  io.out('To triage: debt scan --json > candidates.json && debt triage --candidates candidates.json');
 }

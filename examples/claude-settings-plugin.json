@@ -1,13 +1,13 @@
 {
   "extraKnownMarketplaces": {
-    "techdebt": {
+    "bakebean": {
       "source": {
         "source": "github",
-        "repo": "OWNER/tech-debt-tracker"
+        "repo": "bakebean/debt-ledger"
       }
     }
   },
   "enabledPlugins": {
-    "techdebt@techdebt": true
+    "debt-ledger@bakebean": true
   }
 }

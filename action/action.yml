@@ -1,4 +1,4 @@
-name: 'Tech Debt Tracker'
+name: 'Debt Ledger'
 description: 'Comment on pull requests that touch files with tracked tech debt (.techdebt/items.json)'
 inputs:
   github-token:

@@ -1,4 +1,4 @@
-# techdebt-tracker
+# debt-ledger
 
 Every codebase collects shortcuts and "we'll fix this later" spots — that's
 technical debt. This tool keeps an honest list of yours, saved as a small file
@@ -34,24 +34,24 @@ The tool isn't on npm yet, so you run it straight from a copy of this repo.
 **Step 1 — get the code and build it.** In your terminal:
 
 ```sh
-git clone <this-repo-url> ~/tech-debt-tracker
-cd ~/tech-debt-tracker
+git clone https://github.com/bakebean/debt-ledger ~/debt-ledger
+cd ~/debt-ledger
 yarn install && yarn build
 ```
 
-**Step 2 — make the `techdebt` command available everywhere.** Add this line
+**Step 2 — make the `debt` command available everywhere.** Add this line
 to your shell config file (that's `~/.zshrc` on a Mac; `~/.bashrc` on most
 Linux setups), then open a new terminal window:
 
 ```sh
-alias techdebt="node $HOME/tech-debt-tracker/packages/cli/dist/index.js"
+alias debt="node $HOME/debt-ledger/packages/cli/dist/index.js"
 ```
 
 If you'd rather have a real command than an alias (handy if you skip the
 plugin install described below), link it onto your PATH instead:
 
 ```sh
-ln -s ~/tech-debt-tracker/packages/cli/dist/index.js /usr/local/bin/techdebt
+ln -s ~/debt-ledger/packages/cli/dist/index.js /usr/local/bin/debt
 ```
 
 **Windows note:** instead of the alias above, add this function to your
@@ -59,10 +59,10 @@ PowerShell profile (run `notepad $PROFILE` to open it), then start a new
 terminal:
 
 ```powershell
-function techdebt { node "$HOME\tech-debt-tracker\packages\cli\dist\index.js" @args }
+function debt { node "$HOME\debt-ledger\packages\cli\dist\index.js" @args }
 ```
 
-**Step 3 — check it works.** `techdebt --help` should print the list of
+**Step 3 — check it works.** `debt --help` should print the list of
 commands. That's it — there's no account, no API key, and nothing leaves your
 machine.
 
@@ -74,7 +74,7 @@ Run all of these **inside the repo you want to track**, not inside this one.
 and `XXX` comments — debt your past self already flagged:
 
 ```sh
-techdebt scan
+debt scan
 ```
 
 **Record the real ones.** Nothing goes on the list automatically — you review
@@ -82,18 +82,18 @@ each candidate and put numbers on it. The prompts explain every question as
 you go:
 
 ```sh
-techdebt scan --json > /tmp/candidates.json
-techdebt triage --candidates /tmp/candidates.json
+debt scan --json > /tmp/candidates.json
+debt triage --candidates /tmp/candidates.json
 ```
 
 You can also record something no comment marks (a clunky module, a missing
-test) with plain `techdebt triage` and describe it yourself. Afterwards,
+test) with plain `debt triage` and describe it yourself. Afterwards,
 **commit the `.techdebt/items.json` file** — it's part of your repo now.
 
 **See what matters most:**
 
 ```sh
-techdebt report
+debt report
 ```
 
 **Ask what's worth fixing right now.** Pass the files you're currently
@@ -101,20 +101,20 @@ touching and it favours debt in those files; or cap by effort when you just
 have a spare afternoon:
 
 ```sh
-techdebt suggest --files src/auth.ts,src/session.ts
-techdebt suggest --max-effort 2
+debt suggest --files src/auth.ts,src/session.ts
+debt suggest --max-effort 2
 ```
 
 **When you fix something** (or decide you never will):
 
 ```sh
-techdebt status td-a4f2 fixed      # or: wontfix / planned / open
+debt status td-a4f2 fixed      # or: wontfix / planned / open
 ```
 
 **When an estimate feels wrong** or a ticket it was blocking has shipped:
 
 ```sh
-techdebt triage --revisit td-a4f2
+debt triage --revisit td-a4f2
 ```
 
 ## Every command, in one place
@@ -123,56 +123,56 @@ Eight commands total. The first five are your daily tools; the last three
 mostly work behind the scenes (Claude uses them for you), but they're all
 yours to run.
 
-**`techdebt scan`** — reads your code and lists every `TODO`, `FIXME`,
+**`debt scan`** — reads your code and lists every `TODO`, `FIXME`,
 `HACK` and `XXX` comment as a *candidate*: something that might deserve a
 spot on the list. It never writes anything. It only looks at files git
 knows about, so build output and other ignored junk can't slow it down. It
 also warns you if any recorded item points at a file that no longer exists.
 Add `--json` to get the candidates as data you can pipe into `triage`.
 
-**`techdebt triage`** — the front door to the list. Everything on the list
+**`debt triage`** — the front door to the list. Everything on the list
 went through this (or through Claude asking you). Three ways to use it:
 
-- `techdebt triage` on its own: describe one piece of debt yourself,
+- `debt triage` on its own: describe one piece of debt yourself,
   question by question.
-- `techdebt triage --candidates <file>`: walk through what `scan --json`
+- `debt triage --candidates <file>`: walk through what `scan --json`
   found, one candidate at a time — skip the noise, keep the real ones.
-- `techdebt triage --revisit <id>`: reopen an existing item to change its
+- `debt triage --revisit <id>`: reopen an existing item to change its
   numbers, prune a blocker that shipped, or change its status.
 
 Every question shows you the measuring stick (see `rubric`) as you answer,
 and each confirmed item is saved immediately — quitting halfway loses
 nothing.
 
-**`techdebt report`** — the ranked list: every open item, best
+**`debt report`** — the ranked list: every open item, best
 value-for-effort first, with a warning line under anything whose rank
 depends on a "this blocks other work" claim, so stale claims get noticed
 and pruned. `--json` gives the same thing as data.
 
-**`techdebt suggest`** — "what should I fix right now?" With
+**`debt suggest`** — "what should I fix right now?" With
 `--files a.ts,b.ts` it shows only debt living in those files (fix it while
 you're already there — the whole point of the tool). Without `--files` it
 falls back to the overall top of the list. `--max-effort 2` keeps
 suggestions small enough for the time you actually have, `--limit` changes
 how many you get (normally 3), and every suggestion says *why* it came up.
 
-**`techdebt status <id> <status>`** — one-line bookkeeping when things
-change: `techdebt status td-a4f2 fixed`. The four statuses: `open`,
+**`debt status <id> <status>`** — one-line bookkeeping when things
+change: `debt status td-a4f2 fixed`. The four statuses: `open`,
 `planned` (scheduled but not done — still ranks), `fixed` and `wontfix`
 (both drop out of the ranking but stay in the file as history). Do this in
 the same commit as the fix.
 
-**`techdebt add`** — records already-confirmed items from a JSON file
+**`debt add`** — records already-confirmed items from a JSON file
 (`--file`) or piped input, and prints the new ids. This is how Claude
 writes to the list after you've said yes in chat; you'll rarely type it
 yourself. See `examples/confirmed-items.example.json` for the shape.
 
-**`techdebt rubric`** — prints the measuring stick: what a 1-2-3-5-8 means
+**`debt rubric`** — prints the measuring stick: what a 1-2-3-5-8 means
 for effort and for impact, and which "getting worse" rates to use. It
 exists so everyone on a team scores debt against the same yardstick.
 `--json` for tools.
 
-**`techdebt doctor`** — health check for the list file. On its own it only
+**`debt doctor`** — health check for the list file. On its own it only
 reports problems: broken JSON, leftover merge-conflict markers, duplicate
 ids, wrong formatting, or an item that looks like a mis-resolved merge.
 With `--fix` it repairs what's safe to repair automatically (duplicate ids,
@@ -191,26 +191,26 @@ The easiest way to get it is the plugin. Inside Claude Code, run these two
 commands once (they work in any project):
 
 ```
-/plugin marketplace add <this-repo-on-github>     # e.g. your-name/tech-debt-tracker
-/plugin install techdebt
+/plugin marketplace add bakebean/debt-ledger
+/plugin install debt-ledger@bakebean
 ```
 
-That's the whole install. The plugin carries its own copy of the `techdebt`
+That's the whole install. The plugin carries its own copy of the `debt`
 command, so there is nothing to add to your PATH — the Step 2 alias above is
-only needed if you want to run `techdebt` yourself in a terminal.
+only needed if you want to run `debt` yourself in a terminal.
 
-Until this repo is on GitHub, point the marketplace at your local copy
-instead: `/plugin marketplace add ~/tech-debt-tracker`.
+A local checkout works as a marketplace path too — `/plugin marketplace add
+~/debt-ledger` — handy if you're working from a clone instead of GitHub.
 
 **For a whole team:** commit the file `examples/claude-settings-plugin.json`
-into the repo you're tracking as `.claude/settings.json` (fill in the real
-GitHub name). Anyone who opens that repo in Claude Code gets asked once
-whether to install the plugin — one click and they have it.
+into the repo you're tracking as `.claude/settings.json`. Anyone who opens
+that repo in Claude Code gets asked once whether to install the plugin —
+one click and they have it.
 
 ### What you can ask Claude to do
 
 The skill gives Claude four jobs. In every one of them, Claude uses the same
-`techdebt` commands described above — it never edits the list file directly,
+`debt` commands described above — it never edits the list file directly,
 and it never records anything without your yes in the chat.
 
 **1. Find debt.** Say things like *"scan src/auth for tech debt"* or *"look
@@ -224,7 +224,7 @@ first so it won't re-propose something already tracked.
 this as tech debt: the retry logic in client.ts is copy-pasted from
 retry.ts."* Same confirmation gate: you set or approve every number before
 anything is saved. For re-estimating an existing item, Claude will point
-you at `techdebt triage --revisit <id>` (that one's interactive on
+you at `debt triage --revisit <id>` (that one's interactive on
 purpose — the numbers are yours to change, not Claude's).
 
 **3. Suggest.** Say *"what debt should I fix while I'm in this file?"* or
@@ -238,7 +238,7 @@ you see is what the math said.
 one."* Claude flips the status (confirming the id with you first if it's
 ambiguous) and reminds you to commit the change alongside the fix. If a
 command ever reports the list file is unhealthy — usually right after a
-merge — Claude will suggest `techdebt doctor`.
+merge — Claude will suggest `debt doctor`.
 
 ## Get comments on pull requests (GitHub)
 
@@ -250,12 +250,11 @@ about the very item it fixes.
 
 To set it up:
 
-1. Copy `examples/techdebt-workflow.yml` into your repo as
-   `.github/workflows/techdebt.yml`.
-2. In that file, change the `- uses: ./action` line to point at wherever this
-   repo lives on GitHub, e.g. `- uses: your-name/tech-debt-tracker/action@main`.
-3. Push. That's all — the workflow file already asks GitHub for the two
-   permissions it needs (reading the code, writing the comment).
+1. Copy `examples/debt-workflow.yml` into your repo as
+   `.github/workflows/debt-ledger.yml`.
+2. Push. That's all — the workflow file already asks GitHub for the two
+   permissions it needs (reading the code, writing the comment), and it
+   already points at `bakebean/debt-ledger/action@main`.
 
 ## A nudge before you push (optional)
 
@@ -267,7 +266,7 @@ anyway?" — and pressing Enter pushes. It never bothers scripts or CI.
 Install it into the repo you're tracking:
 
 ```sh
-cp ~/tech-debt-tracker/examples/pre-push .git/hooks/pre-push
+cp ~/debt-ledger/examples/pre-push .git/hooks/pre-push
 chmod +x .git/hooks/pre-push
 ```
 
@@ -290,7 +289,7 @@ conflict. Here's the whole recipe:
    **two complete items** — each wrapped in its own `{ ... }`, separated by
    a comma, each with its own `"id"` line. Keeping both items is the goal;
    this is the one situation where editing the file by hand is exactly right.
-2. Run `techdebt doctor --fix`. It checks the whole file, gives any
+2. Run `debt doctor --fix`. It checks the whole file, gives any
    accidentally duplicated id a fresh one, and restores the standard
    formatting.
    If the two versions were accidentally squashed into one item, doctor
@@ -298,7 +297,7 @@ conflict. Here's the whole recipe:
    (`git log -p .techdebt/items.json`) and run it again.
 3. Commit. Done.
 
-`techdebt doctor` (without `--fix`) is also safe to run any time you just
+`debt doctor` (without `--fix`) is also safe to run any time you just
 want to check the ledger's health — it changes nothing.
 
 ## How the ranking works, in plain words
@@ -321,6 +320,6 @@ yarn build   # type-check and build all packages
 ```
 
 The monorepo has four parts: `packages/core` (the data model and ranking —
-plain TypeScript, no dependencies), `packages/cli` (the `techdebt` command),
+plain TypeScript, no dependencies), `packages/cli` (the `debt` command),
 `plugin/` (the Claude Code plugin: the skill plus a bundled copy of the CLI),
 and `action/` (the GitHub Action).

@@ -23,8 +23,8 @@ while read -r _local_ref local_sha _remote_ref remote_sha; do
 done
 
 if [ "$total" -gt 0 ] && [ -r /dev/tty ]; then
-  printf 'techdebt: this push adds %s new TODO-style comment(s).\n' "$total" > /dev/tty
-  printf 'Record them first with: techdebt scan --json > /tmp/c.json && techdebt triage --candidates /tmp/c.json\n' > /dev/tty
+  printf 'debt: this push adds %s new TODO-style comment(s).\n' "$total" > /dev/tty
+  printf 'Record them first with: debt scan --json > /tmp/c.json && debt triage --candidates /tmp/c.json\n' > /dev/tty
   printf 'Push anyway? [Y/n] ' > /dev/tty
   read -r answer < /dev/tty
   if [ "$answer" = "n" ] || [ "$answer" = "N" ]; then
